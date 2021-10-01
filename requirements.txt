@@ -13,6 +13,8 @@ pandas==1.3.3
     #   pyreadstat
 git+https://github.com/JaakkoRoponen/pandas-weighting
     # via -r requirements.in
+patool==1.12
+    # via -r requirements.in
 pyreadstat==1.1.2
     # via -r requirements.in
 python-dateutil==2.8.2
