@@ -167,7 +167,7 @@ class ECH(object):
         else:
             by_array = by
         if is_categorical is None:
-            categorical = self.guess_categorical(values)
+            categorical = self._guess_categorical(values)
         else:
             categorical = is_categorical
         if categorical:
@@ -241,6 +241,17 @@ class ECH(object):
             output.replace(replace_names, inplace=True)
         return output
 
+    def _guess_categorical(self, variable):
+        if self.data[variable].dtype in ["object", "category"]:
+            return True
+        if (
+            self.data[variable].dtype.kind in "iuf"
+            and self.data[variable].nunique() <= self.categorical_threshold
+        ):
+            return True
+        else:
+            return False
+
     def ptiles(
         self,
         variable: str,
@@ -281,14 +292,3 @@ class ECH(object):
                     ~output.index.duplicated(keep="first")
                 ]
             return
-
-    def guess_categorical(self, variable):
-        if self.data[variable].dtype in ["object", "category"]:
-            return True
-        if (
-            self.data[variable].dtype.kind in "iuf"
-            and self.data[variable].nunique() <= self.categorical_threshold
-        ):
-            return True
-        else:
-            return False
