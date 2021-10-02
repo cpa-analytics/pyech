@@ -24,6 +24,18 @@ SURVEY_URLS = {
 
 DICTIONARY_URLS = {
     2006: "https://www.ine.gub.uy/c/document_library/get_file?uuid=423d4ef6-b46b-4fd6-89f2-9406069a6626&groupId=10181",
+    2007: "https://www.ine.gub.uy/c/document_library/get_file?uuid=8430f06e-5681-4709-a436-052db9ee18fc&groupId=10181",
+    2008: "https://www.ine.gub.uy/c/document_library/get_file?uuid=022af377-16af-46b6-a59d-05a47e88d990&groupId=10181",
+    2009: "https://www.ine.gub.uy/c/document_library/get_file?uuid=3119e169-76bc-4487-9338-5e572719b953&groupId=10181",
+    2010: "https://www.ine.gub.uy/c/document_library/get_file?uuid=7533aee9-af61-422b-a45d-aeb24b07a3d0&groupId=10181",
+    2011: "https://www.ine.gub.uy/c/document_library/get_file?uuid=54523778-5f53-4df1-a265-3ff520941bca&groupId=10181",
+    2012: "https://www.ine.gub.uy/c/document_library/get_file?uuid=8e8963a6-b9f2-47f3-abf5-119f988ad868&groupId=10181",
+    2013: "https://www.ine.gub.uy/c/document_library/get_file?uuid=055d37e5-d587-4ba7-8a0d-358cd99a9e24&groupId=10181",
+    2014: "https://www.ine.gub.uy/c/document_library/get_file?uuid=9c9612fd-3bc3-47c5-a684-06daaf25da6c&groupId=10181",
+    2015: "https://www.ine.gub.uy/c/document_library/get_file?uuid=6287d12b-1003-4402-86ba-a48866743d88&groupId=10181",
+    2016: "https://www.ine.gub.uy/c/document_library/get_file?uuid=54f72e41-e671-4bea-993c-631596e16883&groupId=10181",
+    2017: "https://www.ine.gub.uy/c/document_library/get_file?uuid=b60f247b-03cb-4bb1-b84b-5d7328479fe2&groupId=10181",
+    2018: "https://www.ine.gub.uy/c/document_library/get_file?uuid=73b6cc21-1bb0-483b-a463-819315b5fff3&groupId=10181",
     2019: "https://www.ine.gub.uy/c/document_library/get_file?uuid=800e3c63-5cbc-4842-ad00-745f801f9220&groupId=10181",
     2020: "https://www.ine.gub.uy/c/document_library/get_file?uuid=1f65ca4f-3d97-40bc-bf7b-56b5de811359&groupId=10181",
 }
