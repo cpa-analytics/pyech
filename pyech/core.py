@@ -113,6 +113,8 @@ class ECH(object):
         sheets = []
         for sheet in excel.sheet_names:
             sheet_data = pd.read_excel(excel, sheet_name=sheet, skiprows=7)
+            if sheet_data.empty:
+                continue
             sheet_data.columns = ["Nombre", "Variable", "Código", "Descripción"]
             sheet_data.dropna(thresh=2, inplace=True)
             sheet_data[["Nombre", "Variable"]] = sheet_data[
