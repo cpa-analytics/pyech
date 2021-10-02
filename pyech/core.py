@@ -1,4 +1,5 @@
 import tempfile
+import re
 from pathlib import Path
 from typing import Callable, Optional, Sequence, Union
 from urllib.request import urlretrieve
@@ -123,6 +124,27 @@ class ECH(object):
         concat.reset_index(drop=True, inplace=True)
         self.dictionary = concat
         return
+
+    def search_dictionary(
+        self, term: str, ignore_case: bool = False, regex: bool = False
+    ):
+        matches = []
+        if ignore_case:
+            flags = re.IGNORECASE
+            if not regex:
+                warn("`ignore_case=True` requires `regex=True`.")
+        else:
+            flags = 0
+        for col in self.dictionary.columns:
+            match = self.dictionary.loc[
+                self.dictionary[col].str.contains(
+                    term, flags=flags, na=False, regex=regex
+                )
+            ]
+            matches.append(match)
+        matches = pd.concat(matches).sort_index()
+        matches = matches.drop_duplicates(keep="first")
+        return matches
 
     def summarize(
         self,
