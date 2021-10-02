@@ -18,12 +18,14 @@ from pyech.utils import DICTIONARY_URLS, PATH, STR_LIST_STR, SURVEY_URLS
 class ECH(object):
     def __init__(
         self,
+        dirpath: PATH = ".",
         data: pd.DataFrame = pd.DataFrame(),
         metadata: Optional[metadata_container] = None,
         weights: Optional[str] = None,
         dictionary: pd.DataFrame = pd.DataFrame(),
         categorical_threshold: int = 50,
     ):
+        self.dirpath = dirpath
         self.data = data
         self.metadata = metadata
         self.weights = weights
@@ -32,7 +34,6 @@ class ECH(object):
 
     def load(
         self,
-        dirpath: PATH,
         year: int,
         weights: Optional[str] = None,
         missing: Optional[str] = r"\s+\.",
@@ -41,11 +42,11 @@ class ECH(object):
         dictionary: bool = True,
     ):
         try:
-            self._read(Path(dirpath, f"{year}.sav"))
+            self._read(Path(self.dirpath, f"{year}.sav"))
         except PyreadstatError:
             warn("Could not read data. It could be missing. Attempting download...")
-            self.download(dirpath=dirpath, year=year)
-            self._read(Path(dirpath, f"{year}.sav"))
+            self.download(dirpath=self.dirpath, year=year)
+            self._read(Path(self.dirpath, f"{year}.sav"))
         if missing is not None:
             self.data = self.data.replace(missing, np.nan, regex=missing_regex)
         if lower:
