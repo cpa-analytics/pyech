@@ -12,7 +12,15 @@ from pandas_weighting import weight
 from pyreadstat import metadata_container, read_sav
 from pyreadstat._readstat_parser import PyreadstatError
 
-from pyech.utils import DICTIONARY_URLS, PATH, STR_LIST_STR, SURVEY_URLS
+from pyech.utils import (
+    DICTIONARY_URLS,
+    PATH,
+    OPTIONAL_STR_LIST,
+    STR_LIST,
+    DATE,
+    SURVEY_URLS,
+)
+from pyech.external import get_cpi, get_nxr
 
 
 class ECH(object):
@@ -31,6 +39,8 @@ class ECH(object):
         self.weights = weights
         self.dictionary = dictionary
         self.categorical_threshold = categorical_threshold
+        self.cpi = pd.DataFrame()
+        self.nxr = pd.DataFrame()
 
     def load(
         self,
@@ -152,7 +162,7 @@ class ECH(object):
     def summarize(
         self,
         values: str,
-        by: STR_LIST_STR = None,
+        by: OPTIONAL_STR_LIST = None,
         is_categorical: Optional[bool] = None,
         aggfunc: Union[str, Callable] = "mean",
         apply_labels: bool = True,
@@ -260,7 +270,7 @@ class ECH(object):
         variable: str,
         n: int,
         labels: Union[bool, Sequence[str]] = False,
-        by: STR_LIST_STR = None,
+        by: OPTIONAL_STR_LIST = None,
         result_weighted: bool = False,
         name: Optional[str] = None,
         household_level: bool = False,
@@ -295,3 +305,76 @@ class ECH(object):
                     ~output.index.duplicated(keep="first")
                 ]
             return
+
+    def convert_real(
+        self,
+        variables: STR_LIST,
+        division: str = "general",
+        start: DATE = None,
+        end: DATE = None,
+    ):
+        with pd.option_context("mode.chained_assignment", None):
+            if self.cpi.empty:
+                self.cpi = get_cpi()
+            if start and not end:
+                ref = self.cpi.iloc[self.cpi.index.get_loc(start, method="nearest")][
+                    division
+                ]
+            elif not start and end:
+                ref = self.cpi.iloc[self.cpi.index.get_loc(end, method="nearest")][
+                    division
+                ]
+            elif start and end:
+                ref = self.cpi.loc[start:end].mean()[division]
+            else:
+                ref = 1
+
+            survey_cpi = self.cpi.loc[
+                (
+                    (self.cpi.index.year == int(self.data.anio[0]))
+                    & (self.cpi.index.month != 12)
+                )
+                | (
+                    (self.cpi.index.year == int(self.data.anio[0]) - 1)
+                    & (self.cpi.index.month == 12)
+                ),
+                [division],
+            ]
+            survey_cpi.loc[:, "mes"] = survey_cpi.index.month
+
+            if isinstance(variables, str):
+                variables = [variables]
+            output = self.data.loc[:, ["mes"] + variables]
+            output["mes"] = output.loc[:, "mes"] - 1
+            output["mes"] = output.loc[:, "mes"].where(output.loc[:, "mes"] == -1, 12)
+            output = output.merge(survey_cpi, on="mes")
+            output = output.div(output[division], axis=0) * ref
+            self.data[[f"{x}_real" for x in variables]] = output.loc[:, variables]
+            return
+
+    def convert_usd(self, variables: STR_LIST):
+        if self.nxr.empty:
+            self.nxr = get_nxr()
+
+        survey_nxr = self.nxr.loc[
+            (
+                (self.nxr.index.year == int(self.data.anio[0]))
+                & (self.nxr.index.month != 12)
+            )
+            | (
+                (self.nxr.index.year == int(self.data.anio[0]) - 1)
+                & (self.nxr.index.month == 12)
+            ),
+            :,
+        ]
+        survey_nxr.loc[:, "mes"] = survey_nxr.index.month
+
+        if isinstance(variables, str):
+            variables = [variables]
+        output = self.data.loc[:, ["mes"] + variables]
+        output["mes"] = output.loc[:, "mes"] - 1
+        output["mes"] = output.loc[:, "mes"].where(output.loc[:, "mes"] == -1, 12)
+        output = output.merge(survey_nxr, on="mes")
+        output = output.div(output["Promedio, venta"], axis=0)
+        self.data[[f"{x}_usd" for x in variables]] = output.loc[:, variables]
+        return
