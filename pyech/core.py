@@ -265,7 +265,7 @@ class ECH(object):
         else:
             return False
 
-    def ptiles(
+    def percentile(
         self,
         variable: str,
         n: int,
