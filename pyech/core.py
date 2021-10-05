@@ -28,7 +28,7 @@ class ECH(object):
         self,
         dirpath: PATH = ".",
         categorical_threshold: int = 50,
-        grouping: STR_LIST = []
+        grouping: STR_LIST = [],
     ):
         self.dirpath = dirpath
         self.categorical_threshold = categorical_threshold
@@ -228,7 +228,9 @@ class ECH(object):
                 data["wtd_val"] = data[values] * data[self.weights]
                 if groups:
                     output = (
-                        data.groupby(all_groups, dropna=dropna)[["wtd_val", self.weights]]
+                        data.groupby(all_groups, dropna=dropna)[
+                            ["wtd_val", self.weights]
+                        ]
                         .sum()
                         .reset_index()
                     )
@@ -338,9 +340,7 @@ class ECH(object):
                 division
             ]
         elif not start and end:
-            ref = self.cpi.iloc[self.cpi.index.get_loc(end, method="nearest")][
-                division
-            ]
+            ref = self.cpi.iloc[self.cpi.index.get_loc(end, method="nearest")][division]
         elif start and end:
             ref = self.cpi.loc[start:end].mean()[division]
         else:
@@ -366,7 +366,9 @@ class ECH(object):
         output["mes"] = output.loc[:, "mes"].where(output.loc[:, "mes"] == -1, 12)
         output = output.merge(survey_cpi, on="mes")
         output = output.div(output[division], axis=0) * ref
-        self.data[[f"{x}_real" for x in variables]] = output.loc[:, variables].astype("float")
+        self.data[[f"{x}_real" for x in variables]] = output.loc[:, variables].astype(
+            "float"
+        )
         return
 
     def convert_usd(self, variables: STR_LIST):
@@ -393,5 +395,7 @@ class ECH(object):
         output["mes"] = output.loc[:, "mes"].where(output.loc[:, "mes"] == -1, 12)
         output = output.merge(survey_nxr, on="mes")
         output = output.div(output["Promedio, venta"], axis=0)
-        self.data[[f"{x}_usd" for x in variables]] = output.loc[:, variables].astype("float")
+        self.data[[f"{x}_usd" for x in variables]] = output.loc[:, variables].astype(
+            "float"
+        )
         return
