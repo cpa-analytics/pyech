@@ -27,18 +27,14 @@ class ECH(object):
     def __init__(
         self,
         dirpath: PATH = ".",
-        data: pd.DataFrame = pd.DataFrame(),
-        metadata: Optional[metadata_container] = None,
-        weights: Optional[str] = None,
-        dictionary: pd.DataFrame = pd.DataFrame(),
         categorical_threshold: int = 50,
     ):
         self.dirpath = dirpath
-        self.data = data
-        self.metadata = metadata
-        self.weights = weights
-        self.dictionary = dictionary
         self.categorical_threshold = categorical_threshold
+        self.data: pd.DataFrame = pd.DataFrame()
+        self.metadata: Optional[metadata_container] = None
+        self.weights: Optional[str] = None
+        self.dictionary: pd.DataFrame = pd.DataFrame()
         self.cpi = pd.DataFrame()
         self.nxr = pd.DataFrame()
 
