@@ -316,44 +316,43 @@ class ECH(object):
         start: DATE = None,
         end: DATE = None,
     ):
-        with pd.option_context("mode.chained_assignment", None):
-            if self.cpi.empty:
-                self.cpi = get_cpi()
-            if start and not end:
-                ref = self.cpi.iloc[self.cpi.index.get_loc(start, method="nearest")][
-                    division
-                ]
-            elif not start and end:
-                ref = self.cpi.iloc[self.cpi.index.get_loc(end, method="nearest")][
-                    division
-                ]
-            elif start and end:
-                ref = self.cpi.loc[start:end].mean()[division]
-            else:
-                ref = 1
-
-            survey_cpi = self.cpi.loc[
-                (
-                    (self.cpi.index.year == int(self.data.anio[0]))
-                    & (self.cpi.index.month != 12)
-                )
-                | (
-                    (self.cpi.index.year == int(self.data.anio[0]) - 1)
-                    & (self.cpi.index.month == 12)
-                ),
-                [division],
+        if self.cpi.empty:
+            self.cpi = get_cpi()
+        if start and not end:
+            ref = self.cpi.iloc[self.cpi.index.get_loc(start, method="nearest")][
+                division
             ]
-            survey_cpi.loc[:, "mes"] = survey_cpi.index.month
+        elif not start and end:
+            ref = self.cpi.iloc[self.cpi.index.get_loc(end, method="nearest")][
+                division
+            ]
+        elif start and end:
+            ref = self.cpi.loc[start:end].mean()[division]
+        else:
+            ref = 1
 
-            if isinstance(variables, str):
-                variables = [variables]
-            output = self.data.loc[:, ["mes"] + variables]
-            output["mes"] = output.loc[:, "mes"] - 1
-            output["mes"] = output.loc[:, "mes"].where(output.loc[:, "mes"] == -1, 12)
-            output = output.merge(survey_cpi, on="mes")
-            output = output.div(output[division], axis=0) * ref
-            self.data[[f"{x}_real" for x in variables]] = output.loc[:, variables]
-            return
+        survey_cpi = self.cpi.loc[
+            (
+                (self.cpi.index.year == int(self.data.anio[0]))
+                & (self.cpi.index.month != 12)
+            )
+            | (
+                (self.cpi.index.year == int(self.data.anio[0]) - 1)
+                & (self.cpi.index.month == 12)
+            ),
+            [division],
+        ]
+        survey_cpi.loc[:, "mes"] = survey_cpi.index.month
+
+        if isinstance(variables, str):
+            variables = [variables]
+        output = self.data.loc[:, ["mes"] + variables]
+        output["mes"] = output.loc[:, "mes"] - 1
+        output["mes"] = output.loc[:, "mes"].where(output.loc[:, "mes"] == -1, 12)
+        output = output.merge(survey_cpi, on="mes")
+        output = output.div(output[division], axis=0) * ref
+        self.data[[f"{x}_real" for x in variables]] = output.loc[:, variables].astype("float")
+        return
 
     def convert_usd(self, variables: STR_LIST):
         if self.nxr.empty:
@@ -379,5 +378,5 @@ class ECH(object):
         output["mes"] = output.loc[:, "mes"].where(output.loc[:, "mes"] == -1, 12)
         output = output.merge(survey_nxr, on="mes")
         output = output.div(output["Promedio, venta"], axis=0)
-        self.data[[f"{x}_usd" for x in variables]] = output.loc[:, variables]
+        self.data[[f"{x}_usd" for x in variables]] = output.loc[:, variables].astype("float")
         return
