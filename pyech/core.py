@@ -55,7 +55,7 @@ class ECH(object):
     def grouping(self, group):
         if group is None:
             group = []
-        elif isinstance(group, str):
+        elif not isinstance(group, Sequence) or isinstance(group, str):
             group = [group]
         self._grouping = group
 
@@ -192,10 +192,14 @@ class ECH(object):
             data = self.data.loc[self.data["nper"] == 1]
         else:
             data = self.data.copy()
-        if not isinstance(by, Sequence) or isinstance(by, str):
+        if by is None:
+            by_array = []
+        elif not isinstance(by, Sequence) or isinstance(by, str):
             by_array = [by]
         else:
             by_array = by
+        all_groups = self.grouping + by_array
+        groups = True if len(all_groups) > 0 else False
         if is_categorical is None:
             categorical = self._guess_categorical(values)
         else:
@@ -203,27 +207,16 @@ class ECH(object):
         if categorical:
             if aggfunc != "count":
                 warn(f"'{values}' is categorical. Summarizing by count.")
-            if by is not None:
-                output = (
-                    data.groupby(self.grouping + by_array + [values], dropna=dropna)[self.weights]
-                    .sum()
-                    .reset_index()
-                )
-            else:
-                output = (
-                    data.groupby(self.grouping + [values], dropna=dropna)[self.weights]
-                    .sum()
-                    .reset_index()
-                )
+            output = (
+                data.groupby(all_groups + [values], dropna=dropna)[self.weights]
+                .sum()
+                .reset_index()
+            )
             output.rename({self.weights: "Recuento"}, axis=1, inplace=True)
         else:
             if aggfunc == "mean":
-                if by is not None:
-                    output = data.groupby(self.grouping + by_array, dropna=dropna).apply(
-                        lambda x: np.average(x[values], weights=x[self.weights])
-                    )
-                elif self.grouping:
-                    output = data.groupby(self.grouping, dropna=dropna).apply(
+                if groups:
+                    output = data.groupby(all_groups, dropna=dropna).apply(
                         lambda x: np.average(x[values], weights=x[self.weights])
                     )
                 else:
@@ -233,15 +226,9 @@ class ECH(object):
                 output.reset_index(inplace=True)
             elif aggfunc in ["sum", sum, "count"]:
                 data["wtd_val"] = data[values] * data[self.weights]
-                if by is not None:
+                if groups:
                     output = (
-                        data.groupby(self.grouping + by_array, dropna=dropna)[["wtd_val", self.weights]]
-                        .sum()
-                        .reset_index()
-                    )
-                elif self.grouping:
-                    output = (
-                        data.groupby(self.grouping, dropna=dropna)[["wtd_val", self.weights]]
+                        data.groupby(all_groups, dropna=dropna)[["wtd_val", self.weights]]
                         .sum()
                         .reset_index()
                     )
@@ -258,17 +245,10 @@ class ECH(object):
             else:
                 pd.DataFrame.weight = weight
                 pd.Series.weight = weight
-                if by is not None:
-                    weighted = data[[values] + by_array + self.grouping].weight(data[self.weights])
+                if groups:
+                    weighted = data[[values] + all_groups].weight(data[self.weights])
                     output = (
                         weighted.groupby(self.grouping + by_array, dropna=False)
-                        .agg(aggfunc)
-                        .reset_index()
-                    )
-                elif self.grouping:
-                    weighted = data[[values] + self.grouping].weight(data[self.weights])
-                    output = (
-                        weighted.groupby(self.grouping, dropna=False)
                         .agg(aggfunc)
                         .reset_index()
                     )
@@ -278,7 +258,7 @@ class ECH(object):
         if apply_labels:
             replace_names = {
                 group: self.metadata.variable_value_labels[group]
-                for group in by_array + self.grouping
+                for group in all_groups
                 if group in self.metadata.variable_value_labels
             }
             if categorical and values in self.metadata.variable_value_labels:
@@ -315,18 +295,18 @@ class ECH(object):
             data = self.data.loc[self.data["nper"] == 1]
         else:
             data = self.data.copy()
-        if not isinstance(by, Sequence) or isinstance(by, str):
+        if by is None:
+            by_array = []
+        elif not isinstance(by, Sequence) or isinstance(by, str):
             by_array = [by]
         else:
             by_array = by
-        valid = [v for v in [variable] + by_array + self.grouping if v]
+        all_groups = self.grouping + by_array
+        groups = True if len(all_groups) > 0 else False
+        valid = [v for v in [variable] + all_groups if v]
         weighted = data[valid].weight(data[self.weights])
-        if by:
-            output = weighted.groupby(by + self.grouping)[variable].transform(
-                func=pd.qcut, q=n, labels=labels
-            )
-        elif self.grouping:
-            output = weighted.groupby(self.grouping)[variable].transform(
+        if groups:
+            output = weighted.groupby(all_groups)[variable].transform(
                 func=pd.qcut, q=n, labels=labels
             )
         else:
