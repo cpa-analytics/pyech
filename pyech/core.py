@@ -38,6 +38,13 @@ class ECH(object):
         self.cpi = pd.DataFrame()
         self.nxr = pd.DataFrame()
 
+    @classmethod
+    def from_sav(cls, data: pd.DataFrame, metadata: metadata_container):
+        svy = ECH()
+        svy.data = data
+        svy.metadata = metadata
+        return svy
+
     def load(
         self,
         year: int,
