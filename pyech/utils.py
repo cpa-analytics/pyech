@@ -1,8 +1,11 @@
 from pathlib import Path
 from typing import Union, List, Optional
+from datetime import datetime, date
 
 PATH = Union[Path, str]
-STR_LIST_STR = Optional[Union[str, List[str]]]
+OPTIONAL_STR_LIST = Optional[Union[str, List[str]]]
+STR_LIST = Union[str, List[str]]
+DATE = Optional[Union[str, datetime, date]]
 
 SURVEY_URLS = {
     2006: "https://www.ine.gub.uy/c/document_library/get_file?uuid=1e2b8c68-9a06-4d2c-9bff-c8e5a67c5d43&groupId=10181",
@@ -39,3 +42,6 @@ DICTIONARY_URLS = {
     2019: "https://www.ine.gub.uy/c/document_library/get_file?uuid=800e3c63-5cbc-4842-ad00-745f801f9220&groupId=10181",
     2020: "https://www.ine.gub.uy/c/document_library/get_file?uuid=1f65ca4f-3d97-40bc-bf7b-56b5de811359&groupId=10181",
 }
+
+CPI_URL = "https://www.ine.gub.uy/c/document_library/get_file?uuid=c4b5efaa-cdd4-497a-ab78-e3138e4f08dc&groupId=10181"
+NXR_URL = "https://www.ine.gub.uy/c/document_library/get_file?uuid=3fbf4ffd-a829-420c-aca9-9f01ecd7919a&groupId=10181"
