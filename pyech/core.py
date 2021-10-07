@@ -1,3 +1,4 @@
+from __future__ import annotations
 import tempfile
 import re
 from pathlib import Path
@@ -37,11 +38,11 @@ class ECH(object):
         self.metadata: Optional[metadata_container] = None
         self.weights: Optional[str] = None
         self.dictionary: pd.DataFrame = pd.DataFrame()
-        self.cpi = pd.DataFrame()
-        self.nxr = pd.DataFrame()
+        self.cpi: pd.DataFrame = pd.DataFrame()
+        self.nxr: pd.DataFrame = pd.DataFrame()
 
     @classmethod
-    def from_sav(cls, data: pd.DataFrame, metadata: metadata_container):
+    def from_sav(cls, data: pd.DataFrame, metadata: metadata_container) -> ECH:
         svy = ECH()
         svy.data = data
         svy.metadata = metadata
@@ -67,7 +68,7 @@ class ECH(object):
         missing_regex: bool = True,
         lower: bool = True,
         dictionary: bool = True,
-    ):
+    ) -> None:
         try:
             self._read(Path(self.dirpath, f"{year}.sav"))
         except PyreadstatError:
@@ -94,7 +95,7 @@ class ECH(object):
         self.data, self.metadata = read_sav(path)
         return
 
-    def _lower_variable_names(self):
+    def _lower_variable_names(self) -> None:
         self.data.columns = self.data.columns.str.lower()
         self.metadata.column_names = [x.lower() for x in self.metadata.column_names]
         for attr in [
@@ -116,7 +117,7 @@ class ECH(object):
         return
 
     @staticmethod
-    def download(dirpath: PATH, year: int):
+    def download(dirpath: PATH, year: int) -> None:
         full_path = Path(dirpath, f"{year}.sav")
         if full_path.exists():
             warn(f"{year} survey already exists in {dirpath}")
@@ -134,7 +135,7 @@ class ECH(object):
             survey.rename(Path(dirpath, f"{year}.sav"))
         return
 
-    def get_dictionary(self, year: int):
+    def get_dictionary(self, year: int) -> None:
         url = DICTIONARY_URLS[year]
         excel = pd.ExcelFile(url)
         sheets = []
@@ -157,7 +158,7 @@ class ECH(object):
 
     def search_dictionary(
         self, term: str, ignore_case: bool = False, regex: bool = False
-    ):
+    ) -> pd.DataFrame:
         matches = []
         if ignore_case:
             flags = re.IGNORECASE
@@ -185,7 +186,7 @@ class ECH(object):
         apply_labels: bool = True,
         household_level: bool = False,
         dropna: bool = False,
-    ):
+    ) -> pd.DataFrame:
         if not self.weights:
             raise AttributeError("Summarization requires that `weights` is defined.")
         if household_level:
@@ -290,7 +291,7 @@ class ECH(object):
         result_weighted: bool = False,
         name: Optional[str] = None,
         household_level: bool = False,
-    ):
+    ) -> Optional[pd.DataFrame]:
         pd.DataFrame.weight = weight
         pd.Series.weight = weight
         if household_level:
@@ -332,7 +333,7 @@ class ECH(object):
         division: str = "general",
         start: DATE = None,
         end: DATE = None,
-    ):
+    ) -> None:
         if self.cpi.empty:
             self.cpi = get_cpi()
         if start and not end:
@@ -371,7 +372,7 @@ class ECH(object):
         )
         return
 
-    def convert_usd(self, variables: STR_LIST):
+    def convert_usd(self, variables: STR_LIST) -> None:
         if self.nxr.empty:
             self.nxr = get_nxr()
 
