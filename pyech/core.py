@@ -25,6 +25,44 @@ from pyech.external import get_cpi, get_nxr
 
 
 class ECH(object):
+    """Downloads, read and processes the Encuesta Continua de Hogares carried out by Uruguay's
+    Instituto Nacional de Estadística.
+
+    Handles 2006-2020 surveys, including variable and value labels, and gets their variable
+    dictionaries.
+
+    Parameters
+    ----------
+    dirpath : PATH, by default "."
+        Path where to download new surveys or read existing ones.
+    categorical_threshold : int, by default 50
+        Number of unique values below which the variable is considered categorical.
+    grouping : STR_LIST, by default []
+        Variable(s) to use for grouping in methods (:mod:`~pyech.core.ECH.summarize`,
+        :mod:`~pyech.core.ECH.percentile`)
+
+    Attributes
+    ----------
+    dirpath : PATH, by default "."
+        Path where to download new surveys or read existing ones.
+    categorical_threshold : int, by default 50
+        Number of unique values below which the variable is considered categorical.
+    grouping : STR_LIST, by default []
+        Variable(s) to use for grouping in methods (:mod:`~pyech.core.ECH.summarize`,
+        :mod:`~pyech.core.ECH.percentile`). Should be a column in :attr:`data`
+    data : pd.DataFrame, by default pd.DataFrame()
+        Survey data.
+    metadata : Optional[metadata_container], by default None
+        Survey metadata.
+    weights : Optional[str], by default None
+        Column in :attr:`data` used to weight cases. Generally "pesoano" for annual weighting.
+    dictionary : pd.DataFrame, by default pd.DataFrame()
+        Variable dictionary.
+    cpi : pd.DataFrame, by default pd.DataFrame()
+        Monthly CPI data.
+    nxr : pd.DataFrame, by default pd.DataFrame()
+        Monthly nominal exchange rate data.
+    """
     def __init__(
         self,
         dirpath: PATH = ".",
@@ -43,6 +81,20 @@ class ECH(object):
 
     @classmethod
     def from_sav(cls, data: pd.DataFrame, metadata: metadata_container) -> ECH:
+        """Build :class:`~pyech.core.ECH` from :attr:`data` and
+        :attr:`metadata`
+
+        Parameters
+        ----------
+        data : pd.DataFrame
+            Survey data.
+        metadata : metadata_container
+            Survey metadata as created by pyreadstat.
+
+        Returns
+        -------
+        :class:`~pyech.core.ECH`
+        """
         svy = ECH()
         svy.data = data
         svy.metadata = metadata
@@ -69,6 +121,29 @@ class ECH(object):
         lower: bool = True,
         dictionary: bool = True,
     ) -> None:
+        """Load a ECH survey and dictionary from a specified year.
+
+        First attempt to read a survey by looking for "`year`.sav" in :attr:`dirpath`. If it cannot
+        be found, download the .rar file, extract it to a temporary directory, move the renamed
+        .sav file to :attr:`dirpath` and then read. Optionally replaces missing values with
+        `numpy.nan`, lowers all variable names and downloads the corresponding variable dictonary.
+
+        Parameters
+        ----------
+        year : int
+            Survey year
+        weights : Optional[str], by default None
+            Variable used for weighting cases.
+        missing : Optional[str], by default r"\s+\."
+            Missing values to replace with `numpy.nan`. Can be a regex with `missing_regex=True`.
+        missing_regex : bool, optional
+            Whether to parse `missing` as regex.
+        lower : bool, by default True
+            Whether to turn variable names to lower case. This helps with analyzing surveys for
+            several years.
+        dictionary : bool, by default True
+            Whether to download the corresponding variable dictionary.
+        """
         try:
             self._read(Path(self.dirpath, f"{year}.sav"))
         except PyreadstatError:
@@ -118,6 +193,16 @@ class ECH(object):
 
     @staticmethod
     def download(dirpath: PATH, year: int) -> None:
+        """Download a ECH survey, unpack the .rar, extract the .sav, rename as "`year`.sav" and
+        place in :attr:`dirpath`.
+
+        Parameters
+        ----------
+        dirpath : PATH
+            Download location.
+        year : int
+            Survey year.
+        """
         full_path = Path(dirpath, f"{year}.sav")
         if full_path.exists():
             warn(f"{year} survey already exists in {dirpath}")
@@ -136,6 +221,13 @@ class ECH(object):
         return
 
     def get_dictionary(self, year: int) -> None:
+        """Download and process variable dictionary for a specified year.
+
+        Parameters
+        ----------
+        year : int
+            Survey year.
+        """
         url = DICTIONARY_URLS[year]
         excel = pd.ExcelFile(url)
         sheets = []
@@ -159,6 +251,22 @@ class ECH(object):
     def search_dictionary(
         self, term: str, ignore_case: bool = False, regex: bool = False
     ) -> pd.DataFrame:
+        """Return rows in :attr:`dictionary` with matching terms.
+
+        Parameters
+        ----------
+        term : str
+            Search term.
+        ignore_case : bool, by default False
+            Whether to search for upper and lower case. Requires `regex=True`
+        regex : bool, by default False
+            Whether to parse `term` as regex.
+
+        Returns
+        -------
+        pd.DataFrame
+            DataFrame containing matching rows.
+        """
         matches = []
         if ignore_case:
             flags = re.IGNORECASE
@@ -187,6 +295,37 @@ class ECH(object):
         household_level: bool = False,
         dropna: bool = False,
     ) -> pd.DataFrame:
+        """Summarize a variable in :attr:`data`.
+
+        Parameters
+        ----------
+        variable : str
+            Variable to summarize.
+        by : OPTIONAL_STR_LIST, by default None
+            Summarize by these groups, as well as those in :attr:`grouping`.
+        is_categorical : Optional[bool], by default None
+            Whether `value` should be treated as categorical. If None, compare with
+            :attr:`categorical_threshold`.
+        aggfunc : Union[str, Callable], by default "mean"
+            Aggregating function. Possible values are "mean", "sum", "count", or any function that
+            works with pd.DataFrame.apply. If `values` is categorical will force `aggfunc="count"`.
+        apply_labels : bool, default True
+            Whether to use value labels from :attr:`metadata`.
+        household_level : bool, default False
+            If True, summarize at the household level (i.e. consider only :attr:`data`["nper"] == 1).
+        dropna : bool, default False
+            Whether to drop groups with no observations.
+
+        Returns
+        -------
+        pd.DataFrame
+            Summarized variable.
+
+        Raises
+        ------
+        AttributeError
+            If :attr:`weights` is not defined.
+        """
         if not self.weights:
             raise AttributeError("Summarization requires that `weights` is defined.")
         if household_level:
@@ -292,6 +431,31 @@ class ECH(object):
         name: Optional[str] = None,
         household_level: bool = False,
     ) -> Optional[pd.DataFrame]:
+        """Calculate n-tiles for a variable. By default add as new column to :attr:`data`.
+
+        Parameters
+        ----------
+        variable : str
+            Reference variable.
+        n : int
+            Number of bins to calculate.
+        labels : Union[bool, Sequence[str]], by default False
+            Passed to `pandas.qcut`. If False, use `int` labels for the resulting bins. If True,
+            name bins by their edges. Otherwise pass a sequence of length equal to `n`.
+        by : OPTIONAL_STR_LIST, by default None
+            Calculate bins for each of the groups, as well as those in :attr:`grouping`.
+        result_weighted : bool, by default False
+            If True, return a pd.DataFrame with the weighted result. Else, add as a column to
+            :attr:`data`.
+        name : Optional[str], by default None
+            Name for the new column. If None, set as "`variable`_`n`"
+        household_level : bool, by default False
+            If True, calculate at the household level (i.e. consider only :attr:`data`["nper"] == 1).
+
+        Returns
+        -------
+        Optional[pd.DataFrame]
+        """
         pd.DataFrame.weight = weight
         pd.Series.weight = weight
         if household_level:
@@ -334,6 +498,19 @@ class ECH(object):
         start: DATE = None,
         end: DATE = None,
     ) -> None:
+        """Convert selected monetary variables to real terms.
+
+        Parameters
+        ----------
+        variables : STR_LIST
+            Column(s) in :attr:`data`. Can be a string or a sequence of strings for multiple columns.
+        division : str, by default "general"
+            CPI index to use for deflating. Can be one of "general", "food", "alcohol", "clothing",
+            "dwelling", "furniture", "health", "transportation", "communications", "entertainment",
+            "education", "accomodation" and "other".
+        start, end : DATE, by default None
+            Set prices to either of these dates or the mean between them.
+        """
         if self.cpi.empty:
             self.cpi = get_cpi()
         if start and not end:
@@ -373,6 +550,13 @@ class ECH(object):
         return
 
     def convert_usd(self, variables: STR_LIST) -> None:
+        """Convert selected monetary variables to USD.
+
+        Parameters
+        ----------
+        variables : STR_LIST
+            Column(s) in :attr:`data`. Can be a string or a sequence of strings for multiple columns.
+        """
         if self.nxr.empty:
             self.nxr = get_nxr()
 
