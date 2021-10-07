@@ -179,7 +179,7 @@ class ECH(object):
 
     def summarize(
         self,
-        values: str,
+        variable: str,
         by: OPTIONAL_STR_LIST = None,
         is_categorical: Optional[bool] = None,
         aggfunc: Union[str, Callable] = "mean",
@@ -202,14 +202,14 @@ class ECH(object):
         all_groups = self.grouping + by_array
         groups = True if len(all_groups) > 0 else False
         if is_categorical is None:
-            categorical = self._guess_categorical(values)
+            categorical = self._guess_categorical(variable)
         else:
             categorical = is_categorical
         if categorical:
             if aggfunc != "count":
-                warn(f"'{values}' is categorical. Summarizing by count.")
+                warn(f"'{variable}' is categorical. Summarizing by count.")
             output = (
-                data.groupby(all_groups + [values], dropna=dropna)[self.weights]
+                data.groupby(all_groups + [variable], dropna=dropna)[self.weights]
                 .sum()
                 .reset_index()
             )
@@ -218,15 +218,15 @@ class ECH(object):
             if aggfunc == "mean":
                 if groups:
                     output = data.groupby(all_groups, dropna=dropna).apply(
-                        lambda x: np.average(x[values], weights=x[self.weights])
+                        lambda x: np.average(x[variable], weights=x[self.weights])
                     )
                 else:
-                    output = [np.average(data[values], weights=data[self.weights])]
+                    output = [np.average(data[variable], weights=data[self.weights])]
                 output = pd.DataFrame(output)
-                output.columns = [values]
+                output.columns = [variable]
                 output.reset_index(inplace=True)
             elif aggfunc in ["sum", sum, "count"]:
-                data["wtd_val"] = data[values] * data[self.weights]
+                data["wtd_val"] = data[variable] * data[self.weights]
                 if groups:
                     output = (
                         data.groupby(all_groups, dropna=dropna)[
@@ -240,23 +240,23 @@ class ECH(object):
                 if aggfunc == "sum" or aggfunc == sum:
                     output["results"] = output["wtd_val"]
                     output.drop(["wtd_val", self.weights], axis=1, inplace=True)
-                    output.rename({"results": values}, axis=1, inplace=True)
+                    output.rename({"results": variable}, axis=1, inplace=True)
                 elif aggfunc == "count":
                     output["results"] = output[self.weights]
                     output.drop(["wtd_val", self.weights], axis=1, inplace=True)
-                    output.rename({"results": values}, axis=1, inplace=True)
+                    output.rename({"results": variable}, axis=1, inplace=True)
             else:
                 pd.DataFrame.weight = weight
                 pd.Series.weight = weight
                 if groups:
-                    weighted = data[[values] + all_groups].weight(data[self.weights])
+                    weighted = data[[variable] + all_groups].weight(data[self.weights])
                     output = (
                         weighted.groupby(self.grouping + by_array, dropna=False)
                         .agg(aggfunc)
                         .reset_index()
                     )
                 else:
-                    weighted = data[[values]].weight(data[self.weights])
+                    weighted = data[[variable]].weight(data[self.weights])
                     output = weighted.apply(aggfunc)
         if apply_labels:
             replace_names = {
@@ -264,9 +264,9 @@ class ECH(object):
                 for group in all_groups
                 if group in self.metadata.variable_value_labels
             }
-            if categorical and values in self.metadata.variable_value_labels:
+            if categorical and variable in self.metadata.variable_value_labels:
                 replace_names.update(
-                    {values: self.metadata.variable_value_labels[values]}
+                    {variable: self.metadata.variable_value_labels[variable]}
                 )
             output.replace(replace_names, inplace=True)
         return output
