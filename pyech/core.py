@@ -63,6 +63,7 @@ class ECH(object):
     nxr : pd.DataFrame, by default pd.DataFrame()
         Monthly nominal exchange rate data.
     """
+
     def __init__(
         self,
         dirpath: PATH = ".",
