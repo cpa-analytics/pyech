@@ -41,7 +41,7 @@ class ECH(object):
     Attributes
     ----------
     dirpath : PATH, by default "."
-        Path where to download new surveys or read existing ones.
+        Path where to download new surveys or read existing ones from.
     categorical_threshold : int, by default 50
         Number of unique values below which the variable is considered categorical.
     grouping : STR_LIST, by default []
@@ -80,14 +80,14 @@ class ECH(object):
     @classmethod
     def from_sav(cls, data: pd.DataFrame, metadata: metadata_container) -> ECH:
         """Build :class:`~pyech.core.ECH` from :attr:`data` and
-        :attr:`metadata`
+        :attr:`metadata` as created by `pyreadstat.read_sav()`.
 
         Parameters
         ----------
         data : pd.DataFrame
             Survey data.
         metadata : metadata_container
-            Survey metadata as created by pyreadstat.
+            Survey metadata.
 
         Returns
         -------
@@ -123,8 +123,8 @@ class ECH(object):
 
         First attempt to read a survey by looking for "`year`.sav" in :attr:`dirpath`. If it cannot
         be found, download the .rar file, extract it to a temporary directory, move the renamed
-        .sav file to :attr:`dirpath` and then read. Optionally replaces missing values with
-        `numpy.nan`, lowers all variable names and downloads the corresponding variable dictonary.
+        .sav file to :attr:`dirpath` and then read. Optionally replace missing values with
+        `numpy.nan`, lower all variable names and download the corresponding variable dictonary.
 
         Parameters
         ----------
