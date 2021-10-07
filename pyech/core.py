@@ -25,11 +25,8 @@ from pyech.external import get_cpi, get_nxr
 
 
 class ECH(object):
-    """Downloads, read and processes the Encuesta Continua de Hogares carried out by Uruguay's
-    Instituto Nacional de Estadística.
-
-    Handles 2006-2020 surveys, including variable and value labels, and gets their variable
-    dictionaries.
+    """Download, read and process the 2006-2020 Encuesta Continua de Hogares survey carried out by
+    Uruguay's Instituto Nacional de Estadística.
 
     Parameters
     ----------
