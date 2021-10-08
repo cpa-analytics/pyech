@@ -4,7 +4,13 @@ from pandas.tseries.offsets import MonthEnd
 from pyech.utils import NXR_URL, CPI_URL
 
 
-def get_cpi():
+def get_cpi() -> pd.DataFrame:
+    """Download and process CPI data by division.
+
+    Returns
+    -------
+    pd.DataFrame
+    """
     file = pd.ExcelFile(CPI_URL)
     sheet_1 = pd.read_excel(
         file, sheet_name=file.sheet_names[0], skiprows=10, nrows=13
@@ -37,7 +43,13 @@ def get_cpi():
     return pd.concat([sheet_1, sheet_2], axis=0)
 
 
-def get_nxr():
+def get_nxr() -> pd.DataFrame:
+    """Download and process USDUYU nominal exchange rate.
+
+    Returns
+    -------
+    pd.DataFrame
+    """
     raw = pd.read_excel(NXR_URL, skiprows=6, index_col=0).dropna(how="all")
     output = raw.iloc[:, [4]]
     output.columns = ["Promedio, venta"]

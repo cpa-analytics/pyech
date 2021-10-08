@@ -30,35 +30,29 @@ class ECH(object):
 
     Parameters
     ----------
-    dirpath : PATH, by default "."
-        Path where to download new surveys or read existing ones.
-    categorical_threshold : int, by default 50
-        Number of unique values below which the variable is considered categorical.
-    grouping : STR_LIST, by default []
+    dirpath :
+        Path where to download new surveys or read existing ones, by default ".".
+    categorical_threshold :
+        Number of unique values below which the variable is considered categorical, by default 50.
+    grouping :
         Variable(s) to use for grouping in methods (:mod:`~pyech.core.ECH.summarize`,
-        :mod:`~pyech.core.ECH.percentile`)
+        :mod:`~pyech.core.ECH.percentile`), by default []
 
     Attributes
     ----------
-    dirpath : PATH, by default "."
-        Path where to download new surveys or read existing ones from.
-    categorical_threshold : int, by default 50
-        Number of unique values below which the variable is considered categorical.
-    grouping : STR_LIST, by default []
-        Variable(s) to use for grouping in methods (:mod:`~pyech.core.ECH.summarize`,
-        :mod:`~pyech.core.ECH.percentile`). Should be a column in :attr:`data`
-    data : pd.DataFrame, by default pd.DataFrame()
-        Survey data.
-    metadata : Optional[metadata_container], by default None
-        Survey metadata.
-    weights : Optional[str], by default None
-        Column in :attr:`data` used to weight cases. Generally "pesoano" for annual weighting.
-    dictionary : pd.DataFrame, by default pd.DataFrame()
-        Variable dictionary.
-    cpi : pd.DataFrame, by default pd.DataFrame()
-        Monthly CPI data.
-    nxr : pd.DataFrame, by default pd.DataFrame()
-        Monthly nominal exchange rate data.
+    data : pd.DataFrame
+        Survey data, by default pd.DataFrame().
+    metadata : metadata_container
+        Survey metadata, by default None.
+    weights : Optional[str]
+        Column in :attr:`data` used to weight cases. Generally "pesoano" for annual weighting, by
+        default None
+    dictionary : pd.DataFrame
+        Variable dictionary, by default pd.DataFrame().
+    cpi : pd.DataFrame
+        Monthly CPI data, by default pd.DataFrame().
+    nxr : pd.DataFrame
+        Monthly nominal exchange rate data, by default pd.DataFrame().
     """
 
     def __init__(
@@ -84,9 +78,9 @@ class ECH(object):
 
         Parameters
         ----------
-        data : pd.DataFrame
+        data :
             Survey data.
-        metadata : metadata_container
+        metadata :
             Survey metadata.
 
         Returns
@@ -128,19 +122,20 @@ class ECH(object):
 
         Parameters
         ----------
-        year : int
+        year :
             Survey year
-        weights : Optional[str], by default None
-            Variable used for weighting cases.
-        missing : Optional[str], by default r"\s+\."
-            Missing values to replace with `numpy.nan`. Can be a regex with `missing_regex=True`.
-        missing_regex : bool, optional
-            Whether to parse `missing` as regex.
-        lower : bool, by default True
+        weights :
+            Variable used for weighting cases, by default None.
+        missing :
+            Missing values to replace with `numpy.nan`. Can be a regex with `missing_regex=True`,
+            by default r"\s+\.".
+        missing_regex :
+            Whether to parse `missing` as regex, by default True.
+        lower :
             Whether to turn variable names to lower case. This helps with analyzing surveys for
-            several years.
-        dictionary : bool, by default True
-            Whether to download the corresponding variable dictionary.
+            several years, by default True.
+        dictionary :
+            Whether to download the corresponding variable dictionary, by default True.
         """
         try:
             self._read(Path(self.dirpath, f"{year}.sav"))
@@ -196,9 +191,9 @@ class ECH(object):
 
         Parameters
         ----------
-        dirpath : PATH
+        dirpath :
             Download location.
-        year : int
+        year :
             Survey year.
         """
         full_path = Path(dirpath, f"{year}.sav")
@@ -223,7 +218,7 @@ class ECH(object):
 
         Parameters
         ----------
-        year : int
+        year :
             Survey year.
         """
         url = DICTIONARY_URLS[year]
@@ -253,12 +248,12 @@ class ECH(object):
 
         Parameters
         ----------
-        term : str
+        term :
             Search term.
-        ignore_case : bool, by default False
-            Whether to search for upper and lower case. Requires `regex=True`
-        regex : bool, by default False
-            Whether to parse `term` as regex.
+        ignore_case :
+            Whether to search for upper and lower case. Requires `regex=True`, by default False.
+        regex :
+            Whether to parse `term` as regex, by default False.
 
         Returns
         -------
@@ -297,22 +292,24 @@ class ECH(object):
 
         Parameters
         ----------
-        variable : str
+        variable :
             Variable to summarize.
-        by : OPTIONAL_STR_LIST, by default None
-            Summarize by these groups, as well as those in :attr:`grouping`.
-        is_categorical : Optional[bool], by default None
+        by :
+            Summarize by these groups, as well as those in :attr:`grouping`, by default None.
+        is_categorical :
             Whether `value` should be treated as categorical. If None, compare with
-            :attr:`categorical_threshold`.
-        aggfunc : Union[str, Callable], by default "mean"
+            :attr:`categorical_threshold`, by default None.
+        aggfunc :
             Aggregating function. Possible values are "mean", "sum", "count", or any function that
-            works with pd.DataFrame.apply. If `values` is categorical will force `aggfunc="count"`.
-        apply_labels : bool, default True
-            Whether to use value labels from :attr:`metadata`.
-        household_level : bool, default False
-            If True, summarize at the household level (i.e. consider only :attr:`data`["nper"] == 1).
-        dropna : bool, default False
-            Whether to drop groups with no observations.
+            works with pd.DataFrame.apply. If `values` is categorical will force `aggfunc="count"`,
+            by default "mean".
+        apply_labels :
+            Whether to use value labels from :attr:`metadata`, by default True.
+        household_level :
+            If True, summarize at the household level (i.e. consider only :attr:`data` ["nper"] == 1),
+            by default False.
+        dropna :
+            Whether to drop groups with no observations, by default False.
 
         Returns
         -------
@@ -433,22 +430,25 @@ class ECH(object):
 
         Parameters
         ----------
-        variable : str
+        variable :
             Reference variable.
-        n : int
+        n :
             Number of bins to calculate.
-        labels : Union[bool, Sequence[str]], by default False
+        labels :
             Passed to `pandas.qcut`. If False, use `int` labels for the resulting bins. If True,
-            name bins by their edges. Otherwise pass a sequence of length equal to `n`.
-        by : OPTIONAL_STR_LIST, by default None
-            Calculate bins for each of the groups, as well as those in :attr:`grouping`.
-        result_weighted : bool, by default False
+            name bins by their edges. Otherwise pass a sequence of length equal to `n`, by default
+            False.
+        by :
+            Calculate bins for each of the groups, as well as those in :attr:`grouping`, by default
+            None.
+        result_weighted :
             If True, return a pd.DataFrame with the weighted result. Else, add as a column to
-            :attr:`data`.
-        name : Optional[str], by default None
-            Name for the new column. If None, set as "`variable`_`n`"
-        household_level : bool, by default False
-            If True, calculate at the household level (i.e. consider only :attr:`data`["nper"] == 1).
+            :attr:`data`, by default False
+        name :
+            Name for the new column. If None, set as "`variable`_`n`", by default None:
+        household_level :
+            If True, calculate at the household level (i.e. consider only :attr:`data` ["nper"] == 1),
+            by default False.
 
         Returns
         -------
@@ -500,14 +500,14 @@ class ECH(object):
 
         Parameters
         ----------
-        variables : STR_LIST
+        variables :
             Column(s) in :attr:`data`. Can be a string or a sequence of strings for multiple columns.
-        division : str, by default "general"
+        division :
             CPI index to use for deflating. Can be one of "general", "food", "alcohol", "clothing",
             "dwelling", "furniture", "health", "transportation", "communications", "entertainment",
-            "education", "accomodation" and "other".
-        start, end : DATE, by default None
-            Set prices to either of these dates or the mean between them.
+            "education", "accomodation" and "other", by default "general".
+        start, end :
+            Set prices to either of these dates or the mean between them, by default None.
         """
         if self.cpi.empty:
             self.cpi = get_cpi()
@@ -552,7 +552,7 @@ class ECH(object):
 
         Parameters
         ----------
-        variables : STR_LIST
+        variables :
             Column(s) in :attr:`data`. Can be a string or a sequence of strings for multiple columns.
         """
         if self.nxr.empty:

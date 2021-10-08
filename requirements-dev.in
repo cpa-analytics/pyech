@@ -1,3 +1,9 @@
 -c requirements.txt
 ipykernel
 black
+sphinx
+sphinx-autobuild
+sphinx-autodoc-typehints
+recommonmark
+sphinx-bootstrap-theme
+sphinx-toolbox
