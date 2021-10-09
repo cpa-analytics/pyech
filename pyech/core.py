@@ -1,6 +1,7 @@
 from __future__ import annotations
 import tempfile
 import re
+import shutil
 from pathlib import Path
 from typing import Callable, Optional, Sequence, Union
 from urllib.request import urlretrieve
@@ -206,11 +207,13 @@ class ECH(object):
         temp_file = tempfile.NamedTemporaryFile(suffix=".rar", delete=False).name
         with open(temp_file, "wb") as f:
             urlretrieve(url, f.name)
-        with tempfile.TemporaryDirectory() as d:
-            patoolib.extract_archive(temp_file, outdir=d, verbosity=-1)
-            survey = [list(Path(d).glob(f"**/*{x}*.sav")) for x in ["h*p", "fusionado"]]
-            survey = [x[0] for x in survey if x][0]
-            survey.rename(Path(dirpath, f"{year}.sav"))
+        dl_dir = Path(dirpath, "dl")
+        dl_dir.mkdir(exist_ok=True)
+        patoolib.extract_archive(temp_file, outdir=dl_dir, verbosity=-1)
+        survey = [list(Path(dirpath).glob(f"**/*{x}*.sav")) for x in ["h*p", "fusionado"]]
+        survey = [x[0] for x in survey if x][0]
+        survey.rename(Path(dirpath, f"{year}.sav"))
+        shutil.rmtree(dl_dir)
         return
 
     def get_dictionary(self, year: int) -> None:
