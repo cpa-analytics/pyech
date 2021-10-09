@@ -36,7 +36,7 @@ setup(
         "pandas",
         "patool",
         "pyreadstat",
-        "pandas-weighting@ git+https://github.com/JaakkoRoponen/pandas-weighting.git",
+        "pandas-weighting",
     ],
     include_package_data=True,
     packages=packages,

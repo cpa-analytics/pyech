@@ -2,5 +2,5 @@ pandas
 openpyxl
 xlrd
 pyreadstat
-git+https://github.com/JaakkoRoponen/pandas-weighting
+pandas-weighting
 patool
