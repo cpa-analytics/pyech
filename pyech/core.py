@@ -211,6 +211,7 @@ class ECH(object):
         dl_dir.mkdir(exist_ok=True)
         patoolib.extract_archive(temp_file, outdir=dl_dir, verbosity=-1)
         survey = [list(Path(dirpath).glob(f"**/*{x}*.sav")) for x in ["h*p", "fusionado"]]
+        survey.extend([list(Path(dirpath).glob(f"**/*{x}*.sav")) for x in ["H*P", "FUSIONADO"]])
         survey = [x[0] for x in survey if x][0]
         survey.rename(Path(dirpath, f"{year}.sav"))
         shutil.rmtree(dl_dir)
