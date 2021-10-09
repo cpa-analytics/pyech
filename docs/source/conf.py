@@ -24,9 +24,9 @@ copyfile("../../README.md", "README.md")
 
 # -- Project information -----------------------------------------------------
 
-project = 'pyech'
-copyright = '2021, CPA Ferrere | Data Analytics'
-author = 'CPA Ferrere | Data Analytics'
+project = "pyech"
+copyright = "2021, CPA Ferrere | Data Analytics"
+author = "CPA Ferrere | Data Analytics"
 
 # The full version, including alpha/beta/rc tags
 release = __version__
@@ -37,11 +37,16 @@ release = __version__
 # Add any Sphinx extension module names here, as strings. They can be
 # extensions coming with Sphinx (named 'sphinx.ext.*') or your custom
 # ones.
-extensions = ["sphinx.ext.autodoc", "sphinx.ext.napoleon", "sphinx.ext.viewcode", "recommonmark",
-              "sphinx_toolbox.more_autodoc.typehints"]
+extensions = [
+    "sphinx.ext.autodoc",
+    "sphinx.ext.napoleon",
+    "sphinx.ext.viewcode",
+    "recommonmark",
+    "sphinx_toolbox.more_autodoc.typehints",
+]
 
 # Add any paths that contain templates here, relative to this directory.
-templates_path = ['_templates']
+templates_path = ["_templates"]
 
 # List of patterns, relative to source directory, that match files and
 # directories to ignore when looking for source files.
@@ -57,21 +62,22 @@ exclude_patterns = []
 html_theme = "bootstrap"
 html_theme_path = sphinx_bootstrap_theme.get_html_theme_path()
 html_logo = "_static/pyech.png"
-html_theme_options = {"navbar_title": " ",
-                      "navbar_site_name": "Sections",
-                      "bootswatch_theme": "flatly"}
+html_theme_options = {
+    "navbar_title": " ",
+    "navbar_site_name": "Sections",
+    "bootswatch_theme": "flatly",
+}
 
 # Add any paths that contain custom static files (such as style sheets) here,
 # relative to this directory. They are copied after the builtin static files,
 # so a file named "default.css" will overwrite the builtin "default.css".
-html_static_path = ['_static']
+html_static_path = ["_static"]
 
 autodoc_member_order = "bysource"
 add_function_parentheses = True
 pygments_style = "sphinx"
 master_doc = "index"
 source_suffix = [".rst", ".md"]
-
 
 
 autodoc_typehints = "description"

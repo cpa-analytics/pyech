@@ -32,7 +32,12 @@ setup(
         "Operating System :: OS Independent",
     ],
     keywords=["uruguay", "survey", "ech", "statistics", "ine", "data"],
-    install_requires=["pandas", "patool", "pyreadstat", "pandas-weighting@ git+https://github.com/JaakkoRoponen/pandas-weighting.git"],
+    install_requires=[
+        "pandas",
+        "patool",
+        "pyreadstat",
+        "pandas-weighting@ git+https://github.com/JaakkoRoponen/pandas-weighting.git",
+    ],
     include_package_data=True,
     packages=packages,
     python_requires=">=3.6",
