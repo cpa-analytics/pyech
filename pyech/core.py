@@ -409,7 +409,7 @@ class ECH(object):
         return output
 
     def _guess_categorical(self, variable):
-        if self.data[variable].dtype in ["object", "category"]:
+        if self.data[variable].dtype.name in ["object", "category"]:
             return True
         if (
             self.data[variable].dtype.kind in "iuf"
