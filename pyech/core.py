@@ -37,7 +37,7 @@ class ECH(object):
         Number of unique values below which the variable is considered categorical, by default 50.
     grouping :
         Variable(s) to use for grouping in methods (:mod:`~pyech.core.ECH.summarize`,
-        :mod:`~pyech.core.ECH.percentile`), by default []
+        :mod:`~pyech.core.ECH.assign_ptile`), by default []
 
     Attributes
     ----------
@@ -419,7 +419,7 @@ class ECH(object):
         else:
             return False
 
-    def percentile(
+    def assign_ptile(
         self,
         variable: str,
         n: int,
