@@ -3,9 +3,10 @@ import tempfile
 import re
 import shutil
 from pathlib import Path
-from typing import Callable, Optional, Sequence, Union
+from typing import Callable, Optional, Sequence, Union, List
 from urllib.request import urlretrieve
 from warnings import warn
+from datetime import datetime, date
 
 import numpy as np
 import pandas as pd
@@ -14,14 +15,7 @@ from pandas_weighting import weight
 from pyreadstat import metadata_container, read_sav
 from pyreadstat._readstat_parser import PyreadstatError
 
-from pyech.utils import (
-    DICTIONARY_URLS,
-    PATH,
-    OPTIONAL_STR_LIST,
-    STR_LIST,
-    DATE,
-    SURVEY_URLS,
-)
+from pyech.utils import DICTIONARY_URLS, SURVEY_URLS
 from pyech.external import get_cpi, get_nxr
 
 
@@ -58,9 +52,9 @@ class ECH(object):
 
     def __init__(
         self,
-        dirpath: PATH = ".",
+        dirpath: Union[Path, str] = ".",
         categorical_threshold: int = 50,
-        grouping: STR_LIST = [],
+        grouping: Union[str, List[str]] = [],
     ):
         self.dirpath = dirpath
         self.categorical_threshold = categorical_threshold
@@ -160,7 +154,7 @@ class ECH(object):
             warn("Selected `weights` not available in dataset.")
         return
 
-    def _read(self, path: PATH):
+    def _read(self, path: Union[Path, str]):
         self.data, self.metadata = read_sav(path)
         return
 
@@ -186,7 +180,7 @@ class ECH(object):
         return
 
     @staticmethod
-    def download(dirpath: PATH, year: int) -> None:
+    def download(dirpath: Union[Path, str], year: int) -> None:
         """Download a ECH survey, unpack the .rar, extract the .sav, rename as "`year`.sav" and
         place in :attr:`dirpath`.
 
@@ -210,7 +204,10 @@ class ECH(object):
         dl_dir = Path(dirpath, "dl")
         dl_dir.mkdir(exist_ok=True)
         patoolib.extract_archive(temp_file, outdir=dl_dir, verbosity=-1)
-        survey = [list(Path(dirpath).glob(f"**/*{x}*.sav")) for x in ["h*p", "Fusionado", "FUSIONADO", "H*P"]]
+        survey = [
+            list(Path(dirpath).glob(f"**/*{x}*.sav"))
+            for x in ["h*p", "Fusionado", "FUSIONADO", "H*P"]
+        ]
         survey = [x[0] for x in survey if x][0]
         survey.rename(Path(dirpath, f"{year}.sav"))
         shutil.rmtree(dl_dir)
@@ -284,7 +281,7 @@ class ECH(object):
     def summarize(
         self,
         variable: str,
-        by: OPTIONAL_STR_LIST = None,
+        by: Optional[Union[str, List[str]]] = None,
         is_categorical: Optional[bool] = None,
         aggfunc: Union[str, Callable] = "mean",
         apply_labels: bool = True,
@@ -424,7 +421,7 @@ class ECH(object):
         variable: str,
         n: int,
         labels: Union[bool, Sequence[str]] = False,
-        by: OPTIONAL_STR_LIST = None,
+        by: Optional[Union[str, List[str]]] = None,
         result_weighted: bool = False,
         name: Optional[str] = None,
         household_level: bool = False,
@@ -494,10 +491,10 @@ class ECH(object):
 
     def convert_real(
         self,
-        variables: STR_LIST,
+        variables: Union[str, List[str]],
         division: str = "general",
-        start: DATE = None,
-        end: DATE = None,
+        start: Optional[Union[str, datetime, date]] = None,
+        end: Optional[Union[str, datetime, date]] = None,
     ) -> None:
         """Convert selected monetary variables to real terms.
 
@@ -550,7 +547,7 @@ class ECH(object):
         )
         return
 
-    def convert_usd(self, variables: STR_LIST) -> None:
+    def convert_usd(self, variables: Union[str, List[str]]) -> None:
         """Convert selected monetary variables to USD.
 
         Parameters
