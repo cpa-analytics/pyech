@@ -453,7 +453,14 @@ class ECH(object):
         Returns
         -------
         Optional[pd.DataFrame]
+
+        Raises
+        ------
+        AttributeError
+            If :attr:`weights` is not defined.
         """
+        if not self.weights:
+            raise AttributeError("Assigning percentiles requires that `weights` is defined.")
         pd.DataFrame.weight = weight
         pd.Series.weight = weight
         if household_level:
