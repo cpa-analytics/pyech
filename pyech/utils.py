@@ -1,12 +1,3 @@
-from pathlib import Path
-from typing import Union, List, Optional
-from datetime import datetime, date
-
-PATH = Union[Path, str]
-OPTIONAL_STR_LIST = Optional[Union[str, List[str]]]
-STR_LIST = Union[str, List[str]]
-DATE = Optional[Union[str, datetime, date]]
-
 SURVEY_URLS = {
     2006: "https://www.ine.gub.uy/c/document_library/get_file?uuid=1e2b8c68-9a06-4d2c-9bff-c8e5a67c5d43&groupId=10181",
     2007: "https://www.ine.gub.uy/c/document_library/get_file?uuid=ac9034f4-7cf8-40fa-b0bf-9834d679ea5f&groupId=10181",
