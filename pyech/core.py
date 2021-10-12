@@ -403,6 +403,7 @@ class ECH(object):
                     {variable: self.metadata.variable_value_labels[variable]}
                 )
             output.replace(replace_names, inplace=True)
+
         return output
 
     def _guess_categorical(self, variable):
@@ -460,7 +461,9 @@ class ECH(object):
             If :attr:`weights` is not defined.
         """
         if not self.weights:
-            raise AttributeError("Assigning percentiles requires that `weights` is defined.")
+            raise AttributeError(
+                "Assigning percentiles requires that `weights` is defined."
+            )
         pd.DataFrame.weight = weight
         pd.Series.weight = weight
         if household_level:
