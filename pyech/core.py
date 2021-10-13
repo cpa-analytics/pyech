@@ -2,6 +2,7 @@ from __future__ import annotations
 import tempfile
 import re
 import shutil
+from os import getcwd
 from pathlib import Path
 from typing import Callable, Optional, Sequence, Union, List
 from urllib.request import urlretrieve
@@ -52,7 +53,7 @@ class ECH(object):
 
     def __init__(
         self,
-        dirpath: Union[Path, str] = ".",
+        dirpath: Union[Path, str] = getcwd(),
         categorical_threshold: int = 50,
         grouping: Union[str, List[str]] = [],
     ):
