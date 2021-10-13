@@ -30,9 +30,6 @@ class ECH(object):
         Path where to download new surveys or read existing ones, by default ".".
     categorical_threshold :
         Number of unique values below which the variable is considered categorical, by default 50.
-    grouping :
-        Variable(s) to use for grouping in methods (:mod:`~pyech.core.ECH.summarize`,
-        :mod:`~pyech.core.ECH.assign_ptile`), by default []
 
     Attributes
     ----------
@@ -43,6 +40,9 @@ class ECH(object):
     weights : Optional[str]
         Column in :attr:`data` used to weight cases. Generally "pesoano" for annual weighting, by
         default None
+    grouping : Union[str, List[str]]
+        Variable(s) to use for grouping in methods (:mod:`~pyech.core.ECH.summarize`,
+        :mod:`~pyech.core.ECH.assign_ptile`), by default [].
     dictionary : pd.DataFrame
         Variable dictionary, by default pd.DataFrame().
     cpi : pd.DataFrame
@@ -55,17 +55,9 @@ class ECH(object):
         self,
         dirpath: Union[Path, str] = getcwd(),
         categorical_threshold: int = 50,
-        grouping: Union[str, List[str]] = [],
     ):
         self.dirpath = dirpath
         self.categorical_threshold = categorical_threshold
-        self.grouping = grouping
-        self.data: pd.DataFrame = pd.DataFrame()
-        self.metadata: Optional[metadata_container] = None
-        self.weights: Optional[str] = None
-        self.dictionary: pd.DataFrame = pd.DataFrame()
-        self.cpi: pd.DataFrame = pd.DataFrame()
-        self.nxr: pd.DataFrame = pd.DataFrame()
 
     @classmethod
     def from_sav(cls, data: pd.DataFrame, metadata: metadata_container) -> ECH:
@@ -104,6 +96,7 @@ class ECH(object):
         self,
         year: int,
         weights: Optional[str] = None,
+        grouping: Union[str, List[str]] = [],
         missing: Optional[str] = r"\s+\.",
         missing_regex: bool = True,
         lower: bool = True,
@@ -122,6 +115,9 @@ class ECH(object):
             Survey year
         weights :
             Variable used for weighting cases, by default None.
+        grouping :
+            Variable(s) to use for grouping in methods (:mod:`~pyech.core.ECH.summarize`,
+            :mod:`~pyech.core.ECH.assign_ptile`), by default []
         missing :
             Missing values to replace with `numpy.nan`. Can be a regex with `missing_regex=True`,
             by default r"\s+\.".
@@ -145,14 +141,14 @@ class ECH(object):
             self._lower_variable_names()
         if dictionary:
             self.get_dictionary(year=year)
+        self.weights = weights
         if not weights:
             warn(
                 "No column selected for `weights`. Be sure to set the property before using other methods."
             )
-        elif weights and weights in self.data.columns:
-            self.weights = weights
-        else:
+        elif weights and weights not in self.data.columns:
             warn("Selected `weights` not available in dataset.")
+        self.grouping = grouping
         return
 
     def _read(self, path: Union[Path, str]):
@@ -520,7 +516,9 @@ class ECH(object):
         start, end :
             Set prices to either of these dates or the mean between them, by default None.
         """
-        if self.cpi.empty:
+        try:
+            self.cpi
+        except:
             self.cpi = get_cpi()
         if start and not end:
             ref = self.cpi.iloc[self.cpi.index.get_loc(start, method="nearest")][
@@ -566,7 +564,9 @@ class ECH(object):
         variables :
             Column(s) in :attr:`data`. Can be a string or a sequence of strings for multiple columns.
         """
-        if self.nxr.empty:
+        try:
+            self.nxr
+        except AttributeError:
             self.nxr = get_nxr()
 
         survey_nxr = self.nxr.loc[
