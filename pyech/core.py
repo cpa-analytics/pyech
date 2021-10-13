@@ -593,3 +593,26 @@ class ECH(object):
             "float"
         )
         return
+
+    def apply_weights(self, variables: Union[str, List[str]]) -> pd.DataFrame:
+        """Repeat rows as many times as defined in :attr:`weights`.
+
+        Parameters
+        ----------
+        variables :
+            Columns for which weights should be applied. In general it is a good idea to avoid
+            applying weights to all columns since this can result in a large DataFrame.
+
+        Returns
+        -------
+        pd.DataFrame
+
+        Raises
+        ------
+        AttributeError
+            If :attr:`weights` is not defined.
+        """
+        pd.DataFrame.weight = weight
+        if not isinstance(variables, Sequence) or isinstance(variables, str):
+            variables = [variables]
+        return self.data[variables].weight(self.data[self.weights])
