@@ -547,11 +547,10 @@ class ECH(object):
         if isinstance(variables, str):
             variables = [variables]
         output = self.data.loc[:, ["mes"] + variables]
-        output["mes"] = output.loc[:, "mes"] - 1
-        output["mes"] = output.loc[:, "mes"].where(output.loc[:, "mes"] == -1, 12)
-        output = output.merge(survey_cpi, on="mes")
-        output = output.div(output[division], axis=0) * ref
-        self.data[[f"{x}_real" for x in variables]] = output.loc[:, variables].astype(
+        output["mes"] = np.where(output["mes"] - 1 == 0, 12, output["mes"] - 1)
+        output = output.merge(survey_cpi, on="mes", how="left")
+        output = output[variables].div(output[division], axis=0) * ref
+        self.data[[f"{x}_real" for x in variables]] = output.astype(
             "float"
         )
         return
@@ -585,11 +584,10 @@ class ECH(object):
         if isinstance(variables, str):
             variables = [variables]
         output = self.data.loc[:, ["mes"] + variables]
-        output["mes"] = output.loc[:, "mes"] - 1
-        output["mes"] = output.loc[:, "mes"].where(output.loc[:, "mes"] == -1, 12)
-        output = output.merge(survey_nxr, on="mes")
-        output = output.div(output["Promedio, venta"], axis=0)
-        self.data[[f"{x}_usd" for x in variables]] = output.loc[:, variables].astype(
+        output["mes"] = np.where(output["mes"] - 1 == 0, 12, output["mes"] - 1)
+        output = output.merge(survey_nxr, on="mes", how="left")
+        output = output[variables].div(output["Promedio, venta"], axis=0)
+        self.data[[f"{x}_usd" for x in variables]] = output.astype(
             "float"
         )
         return
