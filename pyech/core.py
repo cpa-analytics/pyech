@@ -355,7 +355,7 @@ class ECH(object):
                     output = [np.average(data[variable], weights=data[self.weights])]
                 output = pd.DataFrame(output)
                 output.columns = [variable]
-                output.reset_index(inplace=True)
+                if groups: output.reset_index(inplace=True)
             elif aggfunc in ["sum", sum, "count"]:
                 data["wtd_val"] = data[variable] * data[self.weights]
                 if groups:
@@ -388,7 +388,7 @@ class ECH(object):
                     )
                 else:
                     weighted = data[[variable]].weight(data[self.weights])
-                    output = weighted.apply(aggfunc)
+                    output = weighted.apply(aggfunc).to_frame().T
         if apply_labels:
             replace_names = {
                 group: self.metadata.variable_value_labels[group]
