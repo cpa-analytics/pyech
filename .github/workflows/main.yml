@@ -22,7 +22,8 @@ jobs:
         python -m pip install -r requirements-dev.txt
     
     - name: Run pytest
-      uses: cclauss/GitHub-Action-for-pytest@0.5.0
+      run: |
+        pytest
         
     - name: Install publish dependencies
       run: |
