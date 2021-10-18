@@ -281,8 +281,9 @@ class ECH(object):
         by: Optional[Union[str, List[str]]] = None,
         is_categorical: Optional[bool] = None,
         aggfunc: Union[str, Callable] = "mean",
-        apply_labels: bool = True,
         household_level: bool = False,
+        prequery: Optional[str] = None,
+        apply_labels: bool = True,
         dropna: bool = False,
     ) -> pd.DataFrame:
         """Summarize a variable in :attr:`data`.
@@ -300,11 +301,16 @@ class ECH(object):
             Aggregating function. Possible values are "mean", "sum", "count", or any function that
             works with pd.DataFrame.apply. If `values` is categorical will force `aggfunc="count"`,
             by default "mean".
-        apply_labels :
-            Whether to use value labels from :attr:`metadata`, by default True.
+        prequery :
+            Pass a string representing a boolean expression to query the survey before summarizing.
+            For example, 'e27 >= 18' would filter out observations where the "e27" variable (age)
+            is lower than 18, and then carry on with summarization. Leverages
+            `pandas' query <https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.query.html>`_.
         household_level :
             If True, summarize at the household level (i.e. consider only :attr:`data` ["nper"] == 1),
             by default False.
+        apply_labels :
+            Whether to use value labels from :attr:`metadata`, by default True.
         dropna :
             Whether to drop groups with no observations, by default False.
 
@@ -320,10 +326,11 @@ class ECH(object):
         """
         if not self.weights:
             raise AttributeError("Summarization requires that `weights` is defined.")
+        data = self.data.copy()
+        if prequery:
+            data = data.query(prequery)
         if household_level:
-            data = self.data.loc[self.data["nper"] == 1]
-        else:
-            data = self.data.copy()
+            data = data.loc[data["nper"] == 1]
         if by is None:
             by_array = []
         elif not isinstance(by, Sequence) or isinstance(by, str):
