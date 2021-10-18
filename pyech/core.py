@@ -239,7 +239,7 @@ class ECH(object):
         return
 
     def search_dictionary(
-        self, term: str, ignore_case: bool = False, regex: bool = False
+        self, term: str, ignore_case: bool = True, regex: bool = True
     ) -> pd.DataFrame:
         """Return rows in :attr:`dictionary` with matching terms.
 
