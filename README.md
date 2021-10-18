@@ -2,6 +2,8 @@
 
 ![Build status](https://github.com/CPA-Analytics/pyech/actions/workflows/main.yml/badge.svg)
 [![Documentation Status](https://readthedocs.org/projects/pyech/badge/?version=latest)](https://pyech.readthedocs.io/en/latest/?badge=latest)
+[![PyPI version](https://badge.fury.io/py/pyech.svg)](https://badge.fury.io/py/pyech)
+[![Python 3.7](https://img.shields.io/badge/python-3.7-blue.svg)](https://www.python.org/downloads/release/python-370/)
 
 # Overview
 A simple package that streamlines the download-read-wrangling process needed to analyze the [Encuesta Continua de Hogares](https://www.ine.gub.uy/encuesta-continua-de-hogares1) survey carried out by the Instituto Nacional de Estadística (Uruguay).
