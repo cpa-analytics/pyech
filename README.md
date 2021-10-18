@@ -1,12 +1,10 @@
-<img src="logo.png" width=400 style="margin-bottom:60px;display:block;margin:0 auto">
+<img src="https://github.com/CPA-Analytics/pyech/raw/master/logo.png" width=400 style="margin-bottom:60px;display:block;margin:0 auto">
 
 ![Build status](https://github.com/CPA-Analytics/pyech/actions/workflows/main.yml/badge.svg)
 [![Documentation Status](https://readthedocs.org/projects/pyech/badge/?version=latest)](https://pyech.readthedocs.io/en/latest/?badge=latest)
 
 # Overview
 A simple package that streamlines the download-read-wrangling process needed to analyze the [Encuesta Continua de Hogares](https://www.ine.gub.uy/encuesta-continua-de-hogares1) survey carried out by the Instituto Nacional de Estadística (Uruguay).
-
-PyECH does not attempt to estimate any indicators in particular, or facilitate any kind of modelling, or concatenate surveys from multiple years. Instead, it aims at providing a hassle-free experience with as simple a syntax as possible.
 
 Here's what PyECH can do:
 * Download survey compressed files.
@@ -18,7 +16,9 @@ Here's what PyECH can do:
 * Calculate variable n-tiles.
 * Convert variables to real terms or USD.
 
-Surprisingly, this covers a lot of what people tend to do with the ECH survey without having to deal with software licensing.
+PyECH does not attempt to estimate any indicators in particular, or facilitate any kind of modelling, or concatenate surveys from multiple years. Instead, it aims at providing a hassle-free experience with as simple a syntax as possible.
+
+Surprisingly, PyECH covers a lot of what people tend to do with the ECH survey without having to deal with software licensing.
 
 For R users, check out [ech](https://github.com/calcita/ech).
 
