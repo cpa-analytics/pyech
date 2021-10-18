@@ -1,7 +1,10 @@
 <img src="logo.png" width=400 style="margin-bottom:60px;display:block;margin:0 auto">
 
+![Build status](https://github.com/CPA-Analytics/pyech/actions/workflows/main.yml/badge.svg)
+[![Documentation Status](https://readthedocs.org/projects/pyech/badge/?version=latest)](https://pyech.readthedocs.io/en/latest/?badge=latest)
+
 # Overview
-A simple package that streamlines the download-read-wrangling process needed to analyze the Encuesta Continua de Hogares survey carried out by the Instituto Nacional de Estadística (Uruguay).
+A simple package that streamlines the download-read-wrangling process needed to analyze the [Encuesta Continua de Hogares](https://www.ine.gub.uy/encuesta-continua-de-hogares1) survey carried out by the Instituto Nacional de Estadística (Uruguay).
 
 PyECH does not attempt to estimate any indicators in particular, or facilitate any kind of modelling, or concatenate surveys from multiple years. Instead, it aims at providing a hassle-free experience with as simple a syntax as possible.
 
@@ -17,6 +20,8 @@ Here's what PyECH can do:
 
 Surprisingly, this covers a lot of what people tend to do with the ECH survey without having to deal with software licensing.
 
+For R users, check out [ech](https://github.com/calcita/ech).
+
 # Installation
 ```bash
 pip install pyech
@@ -29,7 +34,7 @@ In order to unpack downloaded survey files you will need to have unrar in your s
 # Usage
 
 * [Full documentation, including this readme](https://pyech.readthedocs.io).
-* Run the examples notebook in your browser: [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/CPA-Analytics/pyech/blob/master/examples/example.ipynb)
+* Run the examples notebook in your browser | [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/CPA-Analytics/pyech/blob/master/examples/example.ipynb)
 
 Loading a survey is as simple as using `ECH.load`, which will download it if it cannot be found at `dirpath` (by default the current working directory).
 ```python
