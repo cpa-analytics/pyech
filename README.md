@@ -24,11 +24,12 @@ pip install pyech
 
 ## Dependencies
 
-In order to unpack downloaded survey files you will need to have unrar in your system. This should be covered if you have WinRAR or 7zip installed, or can do `sudo apt install unrar` in Ubuntu for example.
+In order to unpack downloaded survey files you will need to have unrar in your system. This should be covered if you have WinRAR or 7zip installed. Otherwise `sudo apt-get install unrar` or what's appropiate for your system.
 
 # Usage
 
-[Full documentation, including this readme](https://pyech.readthedocs.io).
+* [Full documentation, including this readme](https://pyech.readthedocs.io).
+* Run the examples notebook in your browser: [![Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/cpa-analytics/pyech/master)
 
 Loading a survey is as simple as using `ECH.load`, which will download it if it cannot be found at `dirpath` (by default the current working directory).
 ```python
