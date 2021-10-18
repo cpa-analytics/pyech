@@ -29,7 +29,7 @@ In order to unpack downloaded survey files you will need to have unrar in your s
 # Usage
 
 * [Full documentation, including this readme](https://pyech.readthedocs.io).
-* Run the examples notebook in your browser: [![Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/cpa-analytics/pyech/master)
+* Run the examples notebook in your browser: [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/CPA-Analytics/pyech/blob/master/examples/example.ipynb)
 
 Loading a survey is as simple as using `ECH.load`, which will download it if it cannot be found at `dirpath` (by default the current working directory).
 ```python
