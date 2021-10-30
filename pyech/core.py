@@ -138,6 +138,9 @@ class ECH(object):
             self.data = self.data.replace(missing, np.nan, regex=missing_regex)
         if lower:
             self._lower_variable_names()
+        self.metadata.column_labels_and_names = {
+            k: f"{v} ({k})" for k, v in self.metadata.column_names_to_labels.items()
+        }
         if dictionary:
             self.get_dictionary(year=year)
         self.weights = weights
@@ -309,7 +312,7 @@ class ECH(object):
             If True, summarize at the household level (i.e. consider only :attr:`data` ["nper"] == 1),
             by default False.
         apply_labels :
-            Whether to use value labels from :attr:`metadata`, by default True.
+            Whether to use variable and value labels from :attr:`metadata`, by default True.
         dropna :
             Whether to drop groups with no observations, by default False.
 
@@ -361,7 +364,8 @@ class ECH(object):
                     output = [np.average(data[variable], weights=data[self.weights])]
                 output = pd.DataFrame(output)
                 output.columns = [variable]
-                if groups: output.reset_index(inplace=True)
+                if groups:
+                    output.reset_index(inplace=True)
             elif aggfunc in ["sum", sum, "count"]:
                 data["wtd_val"] = data[variable] * data[self.weights]
                 if groups:
@@ -406,6 +410,7 @@ class ECH(object):
                     {variable: self.metadata.variable_value_labels[variable]}
                 )
             output.replace(replace_names, inplace=True)
+            output.rename(self.metadata.column_labels_and_names, axis=1, inplace=True)
 
         return output
 
@@ -556,9 +561,7 @@ class ECH(object):
         output["mes"] = np.where(output["mes"] - 1 == 0, 12, output["mes"] - 1)
         output = output.merge(survey_cpi, on="mes", how="left")
         output = output[variables].div(output[division], axis=0) * ref
-        self.data[[f"{x}_real" for x in variables]] = output.astype(
-            "float"
-        )
+        self.data[[f"{x}_real" for x in variables]] = output.astype("float")
         return
 
     def convert_usd(self, variables: Union[str, List[str]]) -> None:
@@ -593,9 +596,7 @@ class ECH(object):
         output["mes"] = np.where(output["mes"] - 1 == 0, 12, output["mes"] - 1)
         output = output.merge(survey_nxr, on="mes", how="left")
         output = output[variables].div(output["Promedio, venta"], axis=0)
-        self.data[[f"{x}_usd" for x in variables]] = output.astype(
-            "float"
-        )
+        self.data[[f"{x}_usd" for x in variables]] = output.astype("float")
         return
 
     def apply_weights(self, variables: Union[str, List[str]]) -> pd.DataFrame:

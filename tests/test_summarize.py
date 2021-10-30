@@ -28,7 +28,11 @@ noncat_arrays = [
 )
 def test_cat(variable, is_categorical, aggfunc, by, column, result):
     output = survey.summarize(
-        variable, aggfunc=aggfunc, by=by, is_categorical=is_categorical
+        variable,
+        aggfunc=aggfunc,
+        by=by,
+        is_categorical=is_categorical,
+        apply_labels=False,
     )
     assert np.allclose(output[column], result, atol=0, rtol=0.01, equal_nan=True)
 
@@ -43,6 +47,10 @@ def test_cat(variable, is_categorical, aggfunc, by, column, result):
 )
 def test_noncat(variable, aggfunc, by, result, household_level):
     output = survey.summarize(
-        variable, aggfunc=aggfunc, by=by, household_level=household_level
+        variable,
+        aggfunc=aggfunc,
+        by=by,
+        household_level=household_level,
+        apply_labels=False,
     )
     assert np.allclose(output[variable], result, atol=0, rtol=0.01, equal_nan=True)
