@@ -21,4 +21,9 @@ def test_usd():
     usd = survey.summarize("ht11_usd", by="mes", aggfunc="mean")
     peso = survey.summarize("ht11", by="mes", aggfunc="mean")
     xr = survey.nxr.loc["2019-01-01":"2019-12-31"].set_index(peso.index)
-    assert np.allclose(usd["ht11_usd"], peso[["ht11"]].div(xr.squeeze(), axis=0).squeeze(), rtol=0.05, atol=0)
+    assert np.allclose(
+        usd["ht11_usd"],
+        peso[["ht11"]].div(xr.squeeze(), axis=0).squeeze(),
+        rtol=0.05,
+        atol=0,
+    )
