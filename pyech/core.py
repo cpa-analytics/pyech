@@ -285,8 +285,8 @@ class ECH(object):
         aggfunc: Union[str, Callable] = "mean",
         household_level: bool = False,
         prequery: Optional[str] = None,
-        variable_labels: bool = True,
-        value_labels: bool = False,
+        variable_labels: bool = False,
+        value_labels: bool = True,
         dropna: bool = False,
     ) -> pd.DataFrame:
         """Summarize a variable in :attr:`data`.
