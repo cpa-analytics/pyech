@@ -32,7 +32,7 @@ def test_cat(variable, is_categorical, aggfunc, by, column, result):
         aggfunc=aggfunc,
         by=by,
         is_categorical=is_categorical,
-        apply_labels=False,
+        variable_labels=False,
     )
     assert np.allclose(output[column], result, atol=0, rtol=0.01, equal_nan=True)
 
@@ -51,6 +51,6 @@ def test_noncat(variable, aggfunc, by, result, household_level):
         aggfunc=aggfunc,
         by=by,
         household_level=household_level,
-        apply_labels=False,
+        variable_labels=False,
     )
     assert np.allclose(output[variable], result, atol=0, rtol=0.01, equal_nan=True)

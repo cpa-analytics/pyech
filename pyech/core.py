@@ -285,7 +285,8 @@ class ECH(object):
         aggfunc: Union[str, Callable] = "mean",
         household_level: bool = False,
         prequery: Optional[str] = None,
-        apply_labels: bool = True,
+        variable_labels: bool = True,
+        value_labels: bool = False,
         dropna: bool = False,
     ) -> pd.DataFrame:
         """Summarize a variable in :attr:`data`.
@@ -311,8 +312,10 @@ class ECH(object):
         household_level :
             If True, summarize at the household level (i.e. consider only :attr:`data` ["nper"] == 1),
             by default False.
-        apply_labels :
-            Whether to use variable and value labels from :attr:`metadata`, by default True.
+        variable_labels :
+            Whether to use variable labels from :attr:`metadata`, by default True.
+        value_labels :
+            Whether to use value labels from :attr:`metadata`, by default True.
         dropna :
             Whether to drop groups with no observations, by default False.
 
@@ -399,7 +402,7 @@ class ECH(object):
                 else:
                     weighted = data[[variable]].weight(data[self.weights])
                     output = weighted.apply(aggfunc).to_frame().T
-        if apply_labels:
+        if value_labels:
             replace_names = {
                 group: self.metadata.variable_value_labels[group]
                 for group in all_groups
@@ -410,6 +413,7 @@ class ECH(object):
                     {variable: self.metadata.variable_value_labels[variable]}
                 )
             output.replace(replace_names, inplace=True)
+        if variable_labels:
             output.rename(self.metadata.column_labels_and_names, axis=1, inplace=True)
 
         return output

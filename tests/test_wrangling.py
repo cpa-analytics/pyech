@@ -18,8 +18,8 @@ def test_real():
 
 def test_usd():
     survey.convert_usd("ht11")
-    usd = survey.summarize("ht11_usd", by="mes", aggfunc="mean", apply_labels=False)
-    peso = survey.summarize("ht11", by="mes", aggfunc="mean", apply_labels=False)
+    usd = survey.summarize("ht11_usd", by="mes", aggfunc="mean", variable_labels=False)
+    peso = survey.summarize("ht11", by="mes", aggfunc="mean", variable_labels=False)
     xr = survey.nxr.loc["2019-01-01":"2019-12-31"].set_index(peso.index)
     assert np.allclose(
         usd["ht11_usd"],
