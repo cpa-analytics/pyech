@@ -42,6 +42,8 @@ setup(
         "patool",
         "pyreadstat",
         "pandas-weighting",
+        "openpyxl",
+        "xlrd"
     ],
     include_package_data=True,
     packages=packages,
