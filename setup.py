@@ -1,6 +1,11 @@
 import os
 from setuptools import setup, find_packages
-from pyech._version import __version__
+from distutils.util import convert_path
+
+main_ns = {}
+ver_path = convert_path("pyech/_version.py")
+with open(ver_path) as ver_file:
+    exec(ver_file.read(), main_ns)
 
 packages = find_packages(".", exclude=["*.test", "*.test.*"])
 
@@ -11,7 +16,7 @@ with open(os.path.join(here, "README.md"), encoding="utf-8") as f:
 
 setup(
     name="pyech",
-    version=__version__,
+    version=main_ns["__version__"],
     description="Process INE's ECH surveys in Python.",
     long_description=long_description,
     long_description_content_type="text/markdown",
