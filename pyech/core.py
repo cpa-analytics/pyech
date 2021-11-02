@@ -200,10 +200,10 @@ class ECH(object):
         temp_file = tempfile.NamedTemporaryFile(suffix=".rar", delete=False).name
         with open(temp_file, "wb") as f:
             urlretrieve(url, f.name)
-        dl_dir = Path(dirpath, "dl")
+        dl_dir = Path(dirpath, "dl") #TODO: Use a temp dir here. Don't forget to check whether Colab can handle it.
         dl_dir.mkdir(exist_ok=True)
         patoolib.extract_archive(temp_file, outdir=dl_dir, verbosity=-1)
-        sav_paths = list(Path(dirpath).rglob(f"*.sav"))
+        sav_paths = list(Path(dirpath, "dl").rglob(f"*.sav"))
         sav_sizes = {sav_path.stat().st_size: sav_path for sav_path in sav_paths}
         sav_sizes = dict(sorted(sav_sizes.items(), reverse=True))
         survey = [x for x in sav_sizes.values()][0]
