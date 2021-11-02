@@ -149,7 +149,7 @@ class ECH(object):
                 "No column selected for `weights`. Be sure to set the property before using other methods."
             )
         elif weights and weights not in self.data.columns:
-            warn("Selected `weights` not available in dataset.")
+            warn("Selected `weights` not available in dataset. Summarization will fail.")
         self.grouping = grouping
         return
 
@@ -200,14 +200,13 @@ class ECH(object):
         temp_file = tempfile.NamedTemporaryFile(suffix=".rar", delete=False).name
         with open(temp_file, "wb") as f:
             urlretrieve(url, f.name)
-        dl_dir = Path(dirpath, "dl")
+        dl_dir = Path(dirpath, "dl") #TODO: Use a temp dir here. Don't forget to check whether Colab can handle it.
         dl_dir.mkdir(exist_ok=True)
         patoolib.extract_archive(temp_file, outdir=dl_dir, verbosity=-1)
-        survey = [
-            list(Path(dirpath).glob(f"**/*{x}*.sav"))
-            for x in ["h*p", "Fusionado", "FUSIONADO", "H*P"]
-        ]
-        survey = [x[0] for x in survey if x][0]
+        sav_paths = list(Path(dirpath, "dl").rglob(f"*.sav"))
+        sav_sizes = {sav_path.stat().st_size: sav_path for sav_path in sav_paths}
+        sav_sizes = dict(sorted(sav_sizes.items(), reverse=True))
+        survey = [x for x in sav_sizes.values()][0]
         survey.rename(Path(dirpath, f"{year}.sav"))
         shutil.rmtree(dl_dir)
         return
