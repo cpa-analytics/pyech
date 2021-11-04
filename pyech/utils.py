@@ -13,7 +13,7 @@ SURVEY_URLS = {
     2017: "https://www.ine.gub.uy/c/document_library/get_file?uuid=e38ea53c-7253-4007-9f67-2f5f161eea91&groupId=10181",
     2018: "https://www.ine.gub.uy/c/document_library/get_file?uuid=b63b566f-8d11-443d-bcd8-944f137c5aaf&groupId=10181",
     2019: "https://www.ine.gub.uy/c/document_library/get_file?uuid=8c934d2a-ad67-4208-8f21-96989696510e&groupId=10181",
-    2020: "https://www.ine.gub.uy/c/document_library/get_file?uuid=17e8cbb6-85dc-46e3-9567-8d196553125f&groupId=10181",
+    2020: "https://www.ine.gub.uy/c/document_library/get_file?uuid=419abfdb-1fd0-44b8-990d-90368776678a&groupId=10181",
 }
 
 DICTIONARY_URLS = {
