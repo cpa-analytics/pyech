@@ -108,6 +108,11 @@ class ECH(object):
         .sav file to :attr:`dirpath` and then read. Optionally replace missing values with
         `numpy.nan`, lower all variable names and download the corresponding variable dictonary.
 
+        For the 2020 survey a new column called "pesoano" is calculated according to the following
+        formula: pesoano = pesomen / 12. The result is rounded and converted to `int`. This is
+        because 2020 is the first survey that does not have annual weights ("pesoano"). However,
+        they can be calculated from monthly weights ("pesomen").
+
         Parameters
         ----------
         year :
@@ -131,7 +136,7 @@ class ECH(object):
         try:
             self._read(Path(self.dirpath, f"{year}.sav"))
         except PyreadstatError:
-            warn("Could not read data. It could be missing. Attempting download...")
+            print(f"{year} survey .sav file not found in {self.dirpath}. Downloading...")
             self.download(dirpath=self.dirpath, year=year)
             self._read(Path(self.dirpath, f"{year}.sav"))
         if missing is not None:
@@ -143,6 +148,8 @@ class ECH(object):
         }
         if dictionary:
             self.get_dictionary(year=year)
+        if year == 2020:
+            self.data["pesoano"] = (self.data["pesomen"] / 12).round().astype(int)
         self.weights = weights
         if not weights:
             warn(
