@@ -43,7 +43,7 @@ setup(
         "pyreadstat",
         "pandas-weighting",
         "openpyxl",
-        "xlrd"
+        "xlrd",
     ],
     include_package_data=True,
     packages=packages,

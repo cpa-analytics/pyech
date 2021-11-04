@@ -1,6 +1,8 @@
 from __future__ import annotations
 import tempfile
 import re
+import os
+import fnmatch
 import shutil
 from pathlib import Path
 from typing import Callable, Optional, Sequence, Union, List
@@ -136,7 +138,9 @@ class ECH(object):
         try:
             self._read(Path(self.dirpath, f"{year}.sav"))
         except PyreadstatError:
-            print(f"{year} survey .sav file not found in {self.dirpath}. Downloading...")
+            print(
+                f"{year} survey .sav file not found in {self.dirpath}. Downloading..."
+            )
             self.download(dirpath=self.dirpath, year=year)
             self._read(Path(self.dirpath, f"{year}.sav"))
         if missing is not None:
@@ -156,7 +160,9 @@ class ECH(object):
                 "No column selected for `weights`. Be sure to set the property before using other methods."
             )
         elif weights and weights not in self.data.columns:
-            warn("Selected `weights` not available in dataset. Summarization will fail.")
+            warn(
+                "Selected `weights` not available in dataset. Summarization will fail."
+            )
         self.grouping = grouping
         return
 
@@ -207,10 +213,16 @@ class ECH(object):
         temp_file = tempfile.NamedTemporaryFile(suffix=".rar", delete=False).name
         with open(temp_file, "wb") as f:
             urlretrieve(url, f.name)
-        dl_dir = Path(dirpath, "dl") #TODO: Use a temp dir here. Don't forget to check whether Colab can handle it.
+        dl_dir = Path(dirpath, "dl")
+        # TODO: Use a temp dir here. Don't forget to check whether Colab can handle it.
         dl_dir.mkdir(exist_ok=True)
         patoolib.extract_archive(temp_file, outdir=dl_dir, verbosity=-1)
-        sav_paths = list(Path(dirpath, "dl").rglob(f"*.sav"))
+
+        sav_paths = []
+        # Apparently Path.glob doesn't have the same behavior in Unix and Windows, which makes it unreliable: https://stackoverflow.com/a/12213141
+        reg_expr = re.compile(fnmatch.translate("*.sav"), re.IGNORECASE)
+        for root, _, files in os.walk(dl_dir, topdown=True):
+            sav_paths += [Path(root, j) for j in files if re.match(reg_expr, j)]
         sav_sizes = {sav_path.stat().st_size: sav_path for sav_path in sav_paths}
         sav_sizes = dict(sorted(sav_sizes.items(), reverse=True))
         survey = [x for x in sav_sizes.values()][0]
