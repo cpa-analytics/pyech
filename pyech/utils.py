@@ -31,7 +31,7 @@ DICTIONARY_URLS = {
     2017: "https://www.ine.gub.uy/c/document_library/get_file?uuid=b60f247b-03cb-4bb1-b84b-5d7328479fe2&groupId=10181",
     2018: "https://www.ine.gub.uy/c/document_library/get_file?uuid=73b6cc21-1bb0-483b-a463-819315b5fff3&groupId=10181",
     2019: "https://www.ine.gub.uy/c/document_library/get_file?uuid=800e3c63-5cbc-4842-ad00-745f801f9220&groupId=10181",
-    2020: "https://www.ine.gub.uy/c/document_library/get_file?uuid=1f65ca4f-3d97-40bc-bf7b-56b5de811359&groupId=10181",
+    2020: "https://www.ine.gub.uy/c/document_library/get_file?uuid=9580469b-9516-4dba-8003-36c97dcc8f70&groupId=10181",
 }
 
 CPI_URL = "https://www.ine.gub.uy/c/document_library/get_file?uuid=c4b5efaa-cdd4-497a-ab78-e3138e4f08dc&groupId=10181"
