@@ -242,7 +242,7 @@ class ECH(object):
         excel = pd.ExcelFile(url)
         sheets = []
         for sheet in excel.sheet_names:
-            sheet_data = pd.read_excel(excel, sheet_name=sheet, skiprows=7)
+            sheet_data = pd.read_excel(excel, sheet_name=sheet, skiprows=7, usecols="A:D")
             if sheet_data.empty:
                 continue
             sheet_data.columns = ["Nombre", "Variable", "Código", "Descripción"]
