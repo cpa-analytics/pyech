@@ -34,5 +34,5 @@ DICTIONARY_URLS = {
     2020: "https://www.ine.gub.uy/c/document_library/get_file?uuid=9580469b-9516-4dba-8003-36c97dcc8f70&groupId=10181",
 }
 
-CPI_URL = "https://www.ine.gub.uy/c/document_library/get_file?uuid=c4b5efaa-cdd4-497a-ab78-e3138e4f08dc&groupId=10181"
+CPI_URL = "https://www.ine.gub.uy/c/document_library/get_file?uuid=2e92084a-94ec-4fec-b5ca-42b40d5d2826&groupId=10181"
 NXR_URL = "https://www.ine.gub.uy/c/document_library/get_file?uuid=3fbf4ffd-a829-420c-aca9-9f01ecd7919a&groupId=10181"

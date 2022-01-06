@@ -542,7 +542,6 @@ class ECH(object):
     def convert_real(
         self,
         variables: Union[str, List[str]],
-        division: str = "general",
         start: Optional[Union[str, datetime, date]] = None,
         end: Optional[Union[str, datetime, date]] = None,
     ) -> None:
@@ -552,10 +551,6 @@ class ECH(object):
         ----------
         variables :
             Column(s) in :attr:`data`. Can be a string or a sequence of strings for multiple columns.
-        division :
-            CPI index to use for deflating. Can be one of "general", "food", "alcohol", "clothing",
-            "dwelling", "furniture", "health", "transportation", "communications", "entertainment",
-            "education", "accomodation" and "other", by default "general".
         start, end :
             Set prices to either of these dates or the mean between them, by default None.
         """
@@ -564,15 +559,15 @@ class ECH(object):
         except:
             self.cpi = get_cpi()
         if start and not end:
-            ref = self.cpi.iloc[self.cpi.index.get_loc(start, method="nearest")][
-                division
-            ]
+            ref = self.cpi.iloc[self.cpi.index.get_loc(start, method="nearest")]
         elif not start and end:
-            ref = self.cpi.iloc[self.cpi.index.get_loc(end, method="nearest")][division]
+            ref = self.cpi.iloc[self.cpi.index.get_loc(end, method="nearest")]
         elif start and end:
-            ref = self.cpi.loc[start:end].mean()[division]
+            ref = self.cpi.loc[start:end].mean()
         else:
             ref = 1
+        if isinstance(ref, pd.Series):
+            ref = ref.squeeze()
 
         survey_cpi = self.cpi.loc[
             (
@@ -583,7 +578,7 @@ class ECH(object):
                 (self.cpi.index.year == int(self.data.anio[0]) - 1)
                 & (self.cpi.index.month == 12)
             ),
-            [division],
+            :,
         ]
         survey_cpi.loc[:, "mes"] = survey_cpi.index.month
 
@@ -592,7 +587,7 @@ class ECH(object):
         output = self.data.loc[:, ["mes"] + variables]
         output["mes"] = np.where(output["mes"] - 1 == 0, 12, output["mes"] - 1)
         output = output.merge(survey_cpi, on="mes", how="left")
-        output = output[variables].div(output[division], axis=0) * ref
+        output = output[variables].div(output["Índice de Precios al Consumidor"], axis=0) * ref
         self.data[[f"{x}_real" for x in variables]] = output.astype("float")
         return
 
