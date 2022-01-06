@@ -4,6 +4,7 @@ import re
 import os
 import fnmatch
 import shutil
+import multiprocessing
 from pathlib import Path
 from typing import Callable, Optional, Sequence, Union, List
 from urllib.request import urlretrieve
@@ -14,7 +15,7 @@ import numpy as np
 import pandas as pd
 import patoolib
 from pandas_weighting import weight
-from pyreadstat import metadata_container, read_sav
+from pyreadstat import metadata_container, read_sav, read_file_multiprocessing
 from pyreadstat._readstat_parser import PyreadstatError
 
 from pyech.utils import DICTIONARY_URLS, SURVEY_URLS
@@ -59,6 +60,7 @@ class ECH(object):
     ):
         self.dirpath = dirpath
         self.categorical_threshold = categorical_threshold
+        self._cpus = multiprocessing.cpu_count()
 
     @classmethod
     def from_sav(cls, data: pd.DataFrame, metadata: metadata_container) -> ECH:
@@ -102,6 +104,7 @@ class ECH(object):
         missing_regex: bool = True,
         lower: bool = True,
         dictionary: bool = True,
+        multiprocess: bool = False,
     ) -> None:
         """Load a ECH survey and dictionary from a specified year.
 
@@ -134,15 +137,18 @@ class ECH(object):
             several years, by default True.
         dictionary :
             Whether to download the corresponding variable dictionary, by default True.
+        multiprocess :
+            Whether to use multiprocessing to read the file. It will use all available CPUs, by
+            default False.
         """
         try:
-            self._read(Path(self.dirpath, f"{year}.sav"))
+            self._read(Path(self.dirpath, f"{year}.sav"), multiprocess=multiprocess)
         except PyreadstatError:
             print(
                 f"{year} survey .sav file not found in {self.dirpath}. Downloading..."
             )
             self.download(dirpath=self.dirpath, year=year)
-            self._read(Path(self.dirpath, f"{year}.sav"))
+            self._read(Path(self.dirpath, f"{year}.sav"), multiprocess=multiprocess)
         if missing is not None:
             self.data = self.data.replace(missing, np.nan, regex=missing_regex)
         if lower:
@@ -166,8 +172,12 @@ class ECH(object):
         self.grouping = grouping
         return
 
-    def _read(self, path: Union[Path, str]):
-        self.data, self.metadata = read_sav(path)
+    def _read(self, path: Union[Path, str], multiprocess: bool = False):
+        if not multiprocess:
+            self.data, self.metadata = read_sav(path)
+        else:
+            self.data, self.metadata = read_file_multiprocessing(read_sav, path,
+                                                                 num_processes=self._cpus)
         return
 
     def _lower_variable_names(self) -> None:
