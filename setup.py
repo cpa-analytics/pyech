@@ -38,7 +38,7 @@ setup(
     ],
     keywords=["uruguay", "survey", "ech", "statistics", "ine", "data"],
     install_requires=[
-        "pandas",
+        "pandas>=1.2.0",
         "patool",
         "pyreadstat",
         "pandas-weighting",
