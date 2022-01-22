@@ -1,5 +1,6 @@
 -c requirements.txt
 ipykernel
+ipython >= 7.31.1
 black
 sphinx
 sphinx-autobuild

@@ -96,8 +96,10 @@ iniconfig==1.1.1
     # via pytest
 ipykernel==6.4.1
     # via -r requirements-dev.in
-ipython==7.27.0
-    # via ipykernel
+ipython==7.31.1
+    # via
+    #   -r requirements-dev.in
+    #   ipykernel
 ipython-genutils==0.2.0
     # via ipykernel
 jedi==0.18.0
@@ -170,7 +172,7 @@ pytz==2021.1
     # via
     #   -c requirements.txt
     #   babel
-#pywin32==301
+#pywin32==303
     # via jupyter-core
 pyzmq==22.3.0
     # via jupyter-client
