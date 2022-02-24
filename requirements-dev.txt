@@ -134,8 +134,9 @@ natsort==7.1.1
     # via domdf-python-tools
 nest-asyncio==1.5.1
     # via jupyter-client
-packaging==21.0
+packaging==21.3
     # via
+    #   -c requirements.txt
     #   deprecation
     #   deprecation-alias
     #   pytest
@@ -160,8 +161,10 @@ pygments==2.10.0
     #   sphinx
     #   sphinx-prompt
     #   sphinx-tabs
-pyparsing==2.4.7
-    # via packaging
+pyparsing==3.0.7
+    # via
+    #   -c requirements.txt
+    #   packaging
 pytest==6.2.5
     # via -r requirements-dev.in
 python-dateutil==2.8.2
@@ -172,7 +175,7 @@ pytz==2021.1
     # via
     #   -c requirements.txt
     #   babel
-#pywin32==303
+pywin32==303
     # via jupyter-core
 pyzmq==22.3.0
     # via jupyter-client

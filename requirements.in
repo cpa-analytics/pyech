@@ -4,3 +4,4 @@ xlrd
 pyreadstat
 pandas-weighting
 patool
+tables

@@ -5,6 +5,7 @@ import os
 import fnmatch
 import shutil
 import multiprocessing
+import json
 from pathlib import Path
 from typing import Callable, Optional, Sequence, Union, List, Iterable
 from urllib.request import urlretrieve
@@ -75,11 +76,47 @@ class ECH(object):
             Survey data.
         metadata :
             Survey metadata.
+        weights : Optional[str]
+            Column in :attr:`data` used to weight cases. Generally "pesoano" for annual weighting, by
+            default None
+        splitter : Union[str, List[str]]
+            Variable(s) to use for grouping in methods (:mod:`~pyech.core.ECH.summarize`,
+            :mod:`~pyech.core.ECH.assign_ptile`), by default [].
 
         Returns
         -------
         :class:`~pyech.core.ECH`
         """
+        svy = cls()
+        svy.data = data
+        svy.metadata = metadata
+        svy.splitter = splitter
+        svy.weights = weights
+        return svy
+
+    @classmethod
+    def from_h5_json(cls, base_filename: str, splitter: Optional[Union[str, List[str]]] = None, weights: Optional[str] = None,) -> ECH:
+        """Build :class:`~pyech.core.ECH` from a HDF file and JSON file produced
+        by :mod:`~pyech.core.ECH.save`.
+
+        Parameters
+        ----------
+        base_filename :
+            Filename (without extension) used in :mod:`~pyech.core.ECH.summarize`.
+        weights : Optional[str]
+            Column in :attr:`data` used to weight cases. Generally "pesoano" for annual weighting, by
+            default None
+        splitter : Union[str, List[str]]
+            Variable(s) to use for grouping in methods (:mod:`~pyech.core.ECH.summarize`,
+            :mod:`~pyech.core.ECH.assign_ptile`), by default [].
+
+        Returns
+        -------
+        :class:`~pyech.core.ECH`
+        """
+        data = pd.read_hdf(f"{base_filename}.h5")
+        with open(f"{base_filename}.json", "r") as f:
+            metadata = json.load(f)
         svy = cls()
         svy.data = data
         svy.metadata = metadata
@@ -98,6 +135,10 @@ class ECH(object):
         elif not isinstance(split, Sequence) or isinstance(split, str):
             split = [split]
         self._splitter = split
+
+    @property
+    def year(self) -> int:
+        return int(self.data.loc[:, "anio"].iloc[0].squeeze())
 
     def load(
         self,
@@ -652,3 +693,9 @@ class ECH(object):
         if not isinstance(variables, Sequence) or isinstance(variables, str):
             variables = [variables]
         return self.data[variables].weight(self.data[self.weights])
+
+    def save(self, base_filename: str, key: str = "df", complevel: Optional[int] = 9, complib: Optional[str] = "blosc", **kwargs):
+        with open(f"{base_filename}.json", "w") as f:
+            json.dump(self.metadata.__dict__, f)
+        self.data.to_hdf(f"{base_filename}.h5", key=key, complevel=complevel, complib=complib, **kwargs)
+        return

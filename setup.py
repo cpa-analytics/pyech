@@ -44,6 +44,7 @@ setup(
         "pandas-weighting",
         "openpyxl>=2.6.0",
         "xlrd>=1.2.0",
+        "tables",
     ],
     include_package_data=True,
     packages=packages,
