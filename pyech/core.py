@@ -148,7 +148,6 @@ class ECH(object):
         missing: Optional[str] = r"\s+\.",
         missing_regex: bool = True,
         lower: bool = True,
-        dictionary: bool = True,
         multiprocess: bool = False,
     ) -> None:
         """Load a ECH survey and dictionary from a specified year.
@@ -180,8 +179,6 @@ class ECH(object):
         lower :
             Whether to turn variable names to lower case. This helps with analyzing surveys for
             several years, by default True.
-        dictionary :
-            Whether to download the corresponding variable dictionary, by default True.
         multiprocess :
             Whether to use multiprocessing to read the file. It will use all available CPUs, by
             default False.
@@ -201,8 +198,7 @@ class ECH(object):
         self.metadata.column_labels_and_names = {
             k: f"{v} ({k})" for k, v in self.metadata.column_names_to_labels.items()
         }
-        if dictionary:
-            self.get_dictionary(year=year)
+        self.get_dictionary(year=year)
         if year == 2020:
             self.data["pesoano"] = (self.data["pesomen"] / 12).round().astype(int)
         self.weights = weights
