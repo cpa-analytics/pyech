@@ -1,3 +1,5 @@
+from typing import Dict
+
 SURVEY_URLS = {
     2006: "https://www.ine.gub.uy/c/document_library/get_file?uuid=1e2b8c68-9a06-4d2c-9bff-c8e5a67c5d43&groupId=10181",
     2007: "https://www.ine.gub.uy/c/document_library/get_file?uuid=ac9034f4-7cf8-40fa-b0bf-9834d679ea5f&groupId=10181",
@@ -36,3 +38,18 @@ DICTIONARY_URLS = {
 
 CPI_URL = "https://www.ine.gub.uy/c/document_library/get_file?uuid=2e92084a-94ec-4fec-b5ca-42b40d5d2826&groupId=10181"
 NXR_URL = "https://www.ine.gub.uy/c/document_library/get_file?uuid=3fbf4ffd-a829-420c-aca9-9f01ecd7919a&groupId=10181"
+
+
+def _convert_dict_str_to_floats(input: Dict) -> Dict:
+    output = {}
+    for k, v in input.items():
+        try:
+            new_k = float(k)
+        except ValueError:
+            new_k = k
+        if isinstance(v, dict):
+            new_v = _convert_dict_str_to_floats(v)
+        else:
+            new_v = v
+        output.update({new_k: new_v})
+    return output

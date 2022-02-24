@@ -7,7 +7,7 @@ import shutil
 import multiprocessing
 import json
 from pathlib import Path
-from typing import Callable, Optional, Sequence, Union, List, Iterable
+from typing import Callable, Optional, Sequence, Union, List, Iterable, Dict
 from urllib.request import urlretrieve
 from warnings import warn
 from datetime import datetime, date
@@ -19,7 +19,7 @@ from pandas_weighting import weight
 from pyreadstat import metadata_container, read_sav, read_file_multiprocessing
 from pyreadstat._readstat_parser import PyreadstatError
 
-from pyech.utils import DICTIONARY_URLS, SURVEY_URLS
+from pyech.utils import DICTIONARY_URLS, SURVEY_URLS, _convert_dict_str_to_floats
 from pyech.external import get_cpi, get_nxr
 
 
@@ -114,6 +114,7 @@ class ECH(object):
         data = pd.read_hdf(data_path)
         with open(metadata_path, "r") as f:
             metadata = json.load(f)
+        metadata = _convert_dict_str_to_floats(metadata)
         self.data = data
         self.metadata = metadata_container()
         for k, v in metadata.items():
