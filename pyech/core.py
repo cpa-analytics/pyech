@@ -92,6 +92,7 @@ class ECH(object):
         svy.metadata = metadata
         svy.splitter = splitter
         svy.weights = weights
+        svy.get_dictionary(year=svy.year)
         return svy
 
     @classmethod
@@ -142,6 +143,23 @@ class ECH(object):
     @property
     def year(self) -> int:
         return int(self.data.loc[:, "anio"].iloc[0])
+
+    @property
+    def weights(self) -> Optional[str]:
+        return self._weights
+
+    @weights.setter
+    def weights(self, weights) -> None:
+        if not weights:
+            warn(
+                "No column selected for `weights`. Be sure to set the property before using other methods."
+            )
+        elif weights and weights not in self.data.columns:
+            warn(
+                "Selected `weights` not available in dataset. Summarization will fail."
+            )
+        self._weights = weights
+        return
 
     def load(
         self,
@@ -205,14 +223,6 @@ class ECH(object):
         if year == 2020:
             self.data["pesoano"] = (self.data["pesomen"] / 12).round().astype(int)
         self.weights = weights
-        if not weights:
-            warn(
-                "No column selected for `weights`. Be sure to set the property before using other methods."
-            )
-        elif weights and weights not in self.data.columns:
-            warn(
-                "Selected `weights` not available in dataset. Summarization will fail."
-            )
         self.splitter = splitter
         return
 
