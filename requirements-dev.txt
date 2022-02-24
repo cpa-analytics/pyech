@@ -199,7 +199,7 @@ pytz==2021.1
     # via
     #   -c requirements.txt
     #   babel
-pywin32==303
+#pywin32==303
     # via jupyter-core
 pyzmq==22.3.0
     # via jupyter-client
