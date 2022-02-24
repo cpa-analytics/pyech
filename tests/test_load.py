@@ -9,7 +9,7 @@ from pyech import ECH
 def test_load():
     year = randint(2006, 2020)
     survey = ECH("tests")
-    survey.load(year, weights="pesoano", grouping="e26")
+    survey.load(year, weights="pesoano", splitter="e26")
     Path(f"tests/{year}.sav").unlink()
     assert isinstance(survey.data, pd.DataFrame)
 
