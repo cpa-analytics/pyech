@@ -95,47 +95,6 @@ class ECH(object):
         svy.get_dictionary(year=svy.year)
         return svy
 
-    def _load_h5_json(self, base_filename: str) -> None:
-        """Load data and metadata from HDFS and JSON respectively.
-
-        Parameters
-        ----------
-        base_filename :
-            Filename (without extension) used in :mod:`~pyech.core.ECH.save`.
-        dirpath :
-            Path where to find the HDF file and the JSON file, by default ".".
-
-        Returns
-        -------
-        :class:`~pyech.core.ECH`
-        """
-        data_path = Path(self.dirpath, f"{base_filename}.h5")
-        metadata_path = Path(self.dirpath, f"{base_filename}.json")
-        data = pd.read_hdf(data_path)
-        with open(metadata_path, "r") as f:
-            metadata = json.load(f)
-        metadata = _convert_dict_str_to_floats(metadata)
-        self.data = data
-        self.metadata = metadata_container()
-        for k, v in metadata.items():
-            setattr(self.metadata, k, v)
-        return
-
-    def _download_from_repo(self, base_filename: str):
-        data_file = f"{base_filename}.h5"
-        metadata_file = f"{base_filename}.json"
-        data_path = Path(self.dirpath, data_file)
-        metadata_path = Path(self.dirpath, metadata_file)
-        data_url = f"https://github.com/cpa-analytics/pyech/releases/download/data/{data_file}"
-        metadata_url = f"https://github.com/cpa-analytics/pyech/releases/download/data/{metadata_file}"
-        if not data_path.exists():
-            with open(data_path, "wb") as f:
-                urlretrieve(data_url, f.name)
-        if not metadata_path.exists():
-            with open(metadata_path, "w") as f:
-                urlretrieve(metadata_url, f.name)
-        return
-
     @property
     def splitter(self):
         return self._splitter
@@ -309,6 +268,52 @@ class ECH(object):
         shutil.rmtree(dl_dir)
         return
 
+    def _load_h5_json(self, base_filename: str) -> None:
+        """Load data and metadata from HDFS and JSON respectively.
+
+        Parameters
+        ----------
+        base_filename :
+            Filename (without extension) used in :mod:`~pyech.core.ECH.save`.
+
+        Returns
+        -------
+        None
+        """
+        data_path = Path(self.dirpath, f"{base_filename}.h5")
+        metadata_path = Path(self.dirpath, f"{base_filename}.json")
+        data = pd.read_hdf(data_path)
+        with open(metadata_path, "r") as f:
+            metadata = json.load(f)
+        metadata = _convert_dict_str_to_floats(metadata)
+        self.data = data
+        self.metadata = metadata_container()
+        for k, v in metadata.items():
+            setattr(self.metadata, k, v)
+        return
+
+    def _download_from_repo(self, base_filename: str) -> None:
+        """Download survey data from Github repository.
+
+        Parameters
+        ----------
+        base_filename :
+            Filename (without extension) used in :mod:`~pyech.core.ECH.save`.
+        """
+        data_file = f"{base_filename}.h5"
+        metadata_file = f"{base_filename}.json"
+        data_path = Path(self.dirpath, data_file)
+        metadata_path = Path(self.dirpath, metadata_file)
+        data_url = f"https://github.com/cpa-analytics/pyech/releases/download/data/{data_file}"
+        metadata_url = f"https://github.com/cpa-analytics/pyech/releases/download/data/{metadata_file}"
+        if not data_path.exists():
+            with open(data_path, "wb") as f:
+                urlretrieve(data_url, f.name)
+        if not metadata_path.exists():
+            with open(metadata_path, "w") as f:
+                urlretrieve(metadata_url, f.name)
+        return
+
     def get_dictionary(self, year: int) -> None:
         """Download and process variable dictionary for a specified year.
 
@@ -347,9 +352,9 @@ class ECH(object):
         term :
             Search term.
         ignore_case :
-            Whether to search for upper and lower case. Requires `regex=True`, by default False.
+            Whether to search for upper and lower case. Requires `regex=True`, by default True.
         regex :
-            Whether to parse `term` as regex, by default False.
+            Whether to parse `term` as regex, by default True.
 
         Returns
         -------
