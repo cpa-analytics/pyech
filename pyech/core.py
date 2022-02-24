@@ -95,8 +95,7 @@ class ECH(object):
         svy.get_dictionary(year=svy.year)
         return svy
 
-    @classmethod
-    def from_h5_json(cls, base_filename: str, splitter: Optional[Union[str, List[str]]] = None, weights: Optional[str] = None,) -> ECH:
+    def _load_h5_json(self, base_filename: str, splitter: Optional[Union[str, List[str]]] = None, weights: Optional[str] = None,) -> ECH:
         """Build :class:`~pyech.core.ECH` from a HDF file and JSON file produced
         by :mod:`~pyech.core.ECH.save`.
 
@@ -118,15 +117,21 @@ class ECH(object):
         data = pd.read_hdf(f"{base_filename}.h5")
         with open(f"{base_filename}.json", "r") as f:
             metadata = json.load(f)
-        svy = cls()
-        svy.data = data
-        svy.metadata = metadata_container()
+        self.data = data
+        self.metadata = metadata_container()
         for k, v in metadata.items():
-            setattr(svy.metadata, k, v)
-        svy.splitter = splitter
-        svy.weights = weights
-        svy.get_dictionary(year=svy.year)
-        return svy
+            setattr(self.metadata, k, v)
+        return
+
+    @staticmethod
+    def _download_from_git(base_filename: str, path: Union[str, Path]):
+        data_url = f"https://github.com/cpa-analytics/pyech/releases/download/data/{base_filename}.h5"
+        metadata_url = f"https://github.com/cpa-analytics/pyech/releases/download/data/{base_filename}.json"
+        with open(Path(path, f"{base_filename}.h5"), "wb") as f:
+            urlretrieve(data_url, f.name)
+        with open(Path(path, f"{base_filename}.json"), "w") as f:
+            urlretrieve(metadata_url, f.name)
+        return
 
     @property
     def splitter(self):
@@ -164,6 +169,7 @@ class ECH(object):
     def load(
         self,
         year: int,
+        from_git: bool = False,
         weights: Optional[str] = None,
         splitter: Optional[Union[str, List[str]]] = None,
         missing: Optional[str] = r"\s+\.",
@@ -187,6 +193,8 @@ class ECH(object):
         ----------
         year :
             Survey year
+        from_git :
+            If True, download the survey from the Github repo as a HDFS+JSON combo.
         weights :
             Variable used for weighting cases, by default None.
         splitter :
@@ -204,24 +212,28 @@ class ECH(object):
             Whether to use multiprocessing to read the file. It will use all available CPUs, by
             default False.
         """
-        try:
-            self._read(Path(self.dirpath, f"{year}.sav"), multiprocess=multiprocess)
-        except PyreadstatError:
-            print(
-                f"{year} survey .sav file not found in {self.dirpath}. Downloading..."
-            )
-            self.download(dirpath=self.dirpath, year=year)
-            self._read(Path(self.dirpath, f"{year}.sav"), multiprocess=multiprocess)
-        if missing is not None:
-            self.data = self.data.replace(missing, np.nan, regex=missing_regex)
-        if lower:
-            self._lower_variable_names()
-        self.metadata.column_labels_and_names = {
-            k: f"{v} ({k})" for k, v in self.metadata.column_names_to_labels.items()
-        }
+        if from_git:
+            self._download_from_git(str(year), Path(self.dirpath))
+            self._load_h5_json(str(year))
+        else:
+            try:
+                self._read(Path(self.dirpath, f"{year}.sav"), multiprocess=multiprocess)
+            except PyreadstatError:
+                print(
+                    f"{year} survey .sav file not found in {self.dirpath}. Downloading..."
+                )
+                self.download(dirpath=self.dirpath, year=year)
+                self._read(Path(self.dirpath, f"{year}.sav"), multiprocess=multiprocess)
+            if missing is not None:
+                self.data = self.data.replace(missing, np.nan, regex=missing_regex)
+            if lower:
+                self._lower_variable_names()
+            self.metadata.column_labels_and_names = {
+                k: f"{v} ({k})" for k, v in self.metadata.column_names_to_labels.items()
+            }
+            if year == 2020:
+                self.data["pesoano"] = (self.data["pesomen"] / 12).round().astype(int)
         self.get_dictionary(year=year)
-        if year == 2020:
-            self.data["pesoano"] = (self.data["pesomen"] / 12).round().astype(int)
         self.weights = weights
         self.splitter = splitter
         return
