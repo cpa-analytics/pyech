@@ -1,6 +1,6 @@
 -c requirements.txt
 ipykernel
-ipython >= 7.31.1
+ipython>=7.31.1
 black
 sphinx
 sphinx-autobuild
@@ -9,3 +9,6 @@ recommonmark
 sphinx-bootstrap-theme
 sphinx-toolbox
 pytest
+plotly
+nbformat>=4.2.0
+scikit-learn
