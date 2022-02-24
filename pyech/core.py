@@ -42,7 +42,7 @@ class ECH(object):
     weights : Optional[str]
         Column in :attr:`data` used to weight cases. Generally "pesoano" for annual weighting, by
         default None
-    grouping : Union[str, List[str]]
+    splitter : Union[str, List[str]]
         Variable(s) to use for grouping in methods (:mod:`~pyech.core.ECH.summarize`,
         :mod:`~pyech.core.ECH.assign_ptile`), by default [].
     dictionary : pd.DataFrame
@@ -128,7 +128,7 @@ class ECH(object):
             Survey year
         weights :
             Variable used for weighting cases, by default None.
-        grouping :
+        splitter :
             Variable(s) to use for grouping in methods (:mod:`~pyech.core.ECH.summarize`,
             :mod:`~pyech.core.ECH.assign_ptile`), by default []
         missing :
@@ -328,7 +328,7 @@ class ECH(object):
         variable :
             Variable to summarize.
         by :
-            Summarize by these groups, as well as those in :attr:`grouping`, by default None.
+            Summarize by these groups, as well as those in :attr:`splitter`, by default None.
         is_categorical :
             Whether `value` should be treated as categorical. If None, compare with
             :attr:`categorical_threshold`, by default None.
@@ -484,7 +484,7 @@ class ECH(object):
             name bins by their edges. Otherwise pass a sequence of length equal to `n`, by default
             False.
         by :
-            Calculate bins for each of the groups, as well as those in :attr:`grouping`, by default
+            Calculate bins for each of the groups, as well as those in :attr:`splitter`, by default
             None.
         result_weighted :
             If True, return a pd.DataFrame with the weighted result. Else, add as a column to
