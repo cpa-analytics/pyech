@@ -6,7 +6,7 @@ import fnmatch
 import shutil
 import multiprocessing
 from pathlib import Path
-from typing import Callable, Optional, Sequence, Union, List
+from typing import Callable, Optional, Sequence, Union, List, Iterable
 from urllib.request import urlretrieve
 from warnings import warn
 from datetime import datetime, date
@@ -57,13 +57,15 @@ class ECH(object):
         self,
         dirpath: Union[Path, str] = ".",
         categorical_threshold: int = 50,
+        splitter: Optional[str] = None,
     ):
         self.dirpath = dirpath
         self.categorical_threshold = categorical_threshold
+        self.splitter = splitter if isinstance(splitter, Iterable) else [splitter]
         self._cpus = multiprocessing.cpu_count()
 
     @classmethod
-    def from_sav(cls, data: pd.DataFrame, metadata: metadata_container) -> ECH:
+    def from_data(cls, data: pd.DataFrame, metadata: metadata_container, splitter: Optional[Union[str, List[str]]] = None, weights: Optional[str] = None,) -> ECH:
         """Build :class:`~pyech.core.ECH` from :attr:`data` and
         :attr:`metadata` as created by `pyreadstat.read_sav()`.
 
@@ -78,28 +80,30 @@ class ECH(object):
         -------
         :class:`~pyech.core.ECH`
         """
-        svy = ECH()
+        svy = cls()
         svy.data = data
         svy.metadata = metadata
+        svy.splitter = splitter
+        svy.weights = weights
         return svy
 
     @property
-    def grouping(self):
-        return self._grouping
+    def splitter(self):
+        return self._splitter
 
-    @grouping.setter
-    def grouping(self, group):
-        if group is None:
-            group = []
-        elif not isinstance(group, Sequence) or isinstance(group, str):
-            group = [group]
-        self._grouping = group
+    @splitter.setter
+    def splitter(self, split):
+        if split is None:
+            split = []
+        elif not isinstance(split, Sequence) or isinstance(split, str):
+            split = [split]
+        self._splitter = split
 
     def load(
         self,
         year: int,
         weights: Optional[str] = None,
-        grouping: Union[str, List[str]] = [],
+        splitter: Optional[Union[str, List[str]]] = None,
         missing: Optional[str] = r"\s+\.",
         missing_regex: bool = True,
         lower: bool = True,
@@ -169,7 +173,7 @@ class ECH(object):
             warn(
                 "Selected `weights` not available in dataset. Summarization will fail."
             )
-        self.grouping = grouping
+        self.splitter = splitter
         return
 
     def _read(self, path: Union[Path, str], multiprocess: bool = False):
@@ -370,7 +374,7 @@ class ECH(object):
             by_array = [by]
         else:
             by_array = by
-        all_groups = self.grouping + by_array
+        all_groups = self.splitter + by_array
         groups = True if len(all_groups) > 0 else False
         if is_categorical is None:
             categorical = self._guess_categorical(variable)
@@ -423,7 +427,7 @@ class ECH(object):
                 if groups:
                     weighted = data[[variable] + all_groups].weight(data[self.weights])
                     output = (
-                        weighted.groupby(self.grouping + by_array, dropna=False)
+                        weighted.groupby(self.splitter + by_array, dropna=False)
                         .agg(aggfunc)
                         .reset_index()
                     )
@@ -516,7 +520,7 @@ class ECH(object):
             by_array = [by]
         else:
             by_array = by
-        all_groups = self.grouping + by_array
+        all_groups = self.splitter + by_array
         groups = True if len(all_groups) > 0 else False
         valid = [v for v in [variable] + all_groups if v]
         weighted = data[valid].weight(data[self.weights])
