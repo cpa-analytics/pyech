@@ -138,7 +138,7 @@ class ECH(object):
 
     @property
     def year(self) -> int:
-        return int(self.data.loc[:, "anio"].iloc[0].squeeze())
+        return int(self.data.loc[:, "anio"].iloc[0])
 
     def load(
         self,
