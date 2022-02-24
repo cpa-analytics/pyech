@@ -119,9 +119,12 @@ class ECH(object):
             metadata = json.load(f)
         svy = cls()
         svy.data = data
-        svy.metadata = metadata
+        svy.metadata = metadata_container()
+        for k, v in metadata.items():
+            setattr(svy.metadata, k, v)
         svy.splitter = splitter
         svy.weights = weights
+        svy.get_dictionary(year=svy.year)
         return svy
 
     @property
