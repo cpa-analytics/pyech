@@ -56,11 +56,11 @@ class ECH(object):
 
     def __init__(
         self,
-        dirpath: Union[Path, str] = ".",
+        dirpath: Optional[Union[Path, str]] = None,
         categorical_threshold: int = 50,
         splitter: Optional[str] = None,
     ):
-        self.dirpath = dirpath
+        self.dirpath = dirpath or "."
         self.categorical_threshold = categorical_threshold
         self.splitter = splitter if isinstance(splitter, Iterable) else [splitter]
         self._cpus = multiprocessing.cpu_count()
@@ -76,10 +76,10 @@ class ECH(object):
             Survey data.
         metadata :
             Survey metadata.
-        weights : Optional[str]
+        weights :
             Column in :attr:`data` used to weight cases. Generally "pesoano" for annual weighting, by
             default None
-        splitter : Union[str, List[str]]
+        splitter :
             Variable(s) to use for grouping in methods (:mod:`~pyech.core.ECH.summarize`,
             :mod:`~pyech.core.ECH.assign_ptile`), by default [].
 
@@ -95,27 +95,24 @@ class ECH(object):
         svy.get_dictionary(year=svy.year)
         return svy
 
-    def _load_h5_json(self, base_filename: str, splitter: Optional[Union[str, List[str]]] = None, weights: Optional[str] = None,) -> ECH:
-        """Build :class:`~pyech.core.ECH` from a HDF file and JSON file produced
-        by :mod:`~pyech.core.ECH.save`.
+    def _load_h5_json(self, base_filename: str) -> None:
+        """Load data and metadata from HDFS and JSON respectively.
 
         Parameters
         ----------
         base_filename :
-            Filename (without extension) used in :mod:`~pyech.core.ECH.summarize`.
-        weights : Optional[str]
-            Column in :attr:`data` used to weight cases. Generally "pesoano" for annual weighting, by
-            default None
-        splitter : Union[str, List[str]]
-            Variable(s) to use for grouping in methods (:mod:`~pyech.core.ECH.summarize`,
-            :mod:`~pyech.core.ECH.assign_ptile`), by default [].
+            Filename (without extension) used in :mod:`~pyech.core.ECH.save`.
+        dirpath :
+            Path where to find the HDF file and the JSON file, by default ".".
 
         Returns
         -------
         :class:`~pyech.core.ECH`
         """
-        data = pd.read_hdf(f"{base_filename}.h5")
-        with open(f"{base_filename}.json", "r") as f:
+        data_path = Path(self.dirpath, f"{base_filename}.h5")
+        metadata_path = Path(self.dirpath, f"{base_filename}.json")
+        data = pd.read_hdf(data_path)
+        with open(metadata_path, "r") as f:
             metadata = json.load(f)
         self.data = data
         self.metadata = metadata_container()
@@ -123,14 +120,19 @@ class ECH(object):
             setattr(self.metadata, k, v)
         return
 
-    @staticmethod
-    def _download_from_git(base_filename: str, path: Union[str, Path]):
-        data_url = f"https://github.com/cpa-analytics/pyech/releases/download/data/{base_filename}.h5"
-        metadata_url = f"https://github.com/cpa-analytics/pyech/releases/download/data/{base_filename}.json"
-        with open(Path(path, f"{base_filename}.h5"), "wb") as f:
-            urlretrieve(data_url, f.name)
-        with open(Path(path, f"{base_filename}.json"), "w") as f:
-            urlretrieve(metadata_url, f.name)
+    def _download_from_repo(self, base_filename: str):
+        data_file = f"{base_filename}.h5"
+        metadata_file = f"{base_filename}.json"
+        data_path = Path(self.dirpath, data_file)
+        metadata_path = Path(self.dirpath, metadata_file)
+        data_url = f"https://github.com/cpa-analytics/pyech/releases/download/data/{data_file}"
+        metadata_url = f"https://github.com/cpa-analytics/pyech/releases/download/data/{metadata_file}"
+        if not data_path.exists():
+            with open(data_path, "wb") as f:
+                urlretrieve(data_url, f.name)
+        if not metadata_path.exists():
+            with open(metadata_path, "w") as f:
+                urlretrieve(metadata_url, f.name)
         return
 
     @property
@@ -169,7 +171,7 @@ class ECH(object):
     def load(
         self,
         year: int,
-        from_git: bool = False,
+        from_repo: bool = False,
         weights: Optional[str] = None,
         splitter: Optional[Union[str, List[str]]] = None,
         missing: Optional[str] = r"\s+\.",
@@ -193,7 +195,7 @@ class ECH(object):
         ----------
         year :
             Survey year
-        from_git :
+        from_repo :
             If True, download the survey from the Github repo as a HDFS+JSON combo.
         weights :
             Variable used for weighting cases, by default None.
@@ -212,8 +214,8 @@ class ECH(object):
             Whether to use multiprocessing to read the file. It will use all available CPUs, by
             default False.
         """
-        if from_git:
-            self._download_from_git(str(year), Path(self.dirpath))
+        if from_repo:
+            self._download_from_repo(str(year))
             self._load_h5_json(str(year))
         else:
             try:
@@ -716,7 +718,9 @@ class ECH(object):
         return self.data[variables].weight(self.data[self.weights])
 
     def save(self, base_filename: str, key: str = "df", complevel: Optional[int] = 9, complib: Optional[str] = "blosc", **kwargs):
-        with open(f"{base_filename}.json", "w") as f:
+        data_path = Path(self.dirpath, f"{base_filename}.h5")
+        metadata_path = Path(self.dirpath, f"{base_filename}.json")
+        with open(metadata_path, "w") as f:
             json.dump(self.metadata.__dict__, f)
-        self.data.to_hdf(f"{base_filename}.h5", key=key, complevel=complevel, complib=complib, **kwargs)
+        self.data.to_hdf(data_path, key=key, complevel=complevel, complib=complib, **kwargs)
         return
