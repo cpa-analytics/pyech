@@ -14,6 +14,15 @@ def test_load():
     assert isinstance(survey.data, pd.DataFrame)
 
 
+def test_repo_load():
+    year = randint(2006, 2020)
+    survey = ECH("tests")
+    survey.load(year, weights="pesoano", from_repo=True)
+    Path(f"tests/{year}.h5").unlink()
+    Path(f"tests/{year}.json").unlink()
+    assert isinstance(survey.data, pd.DataFrame)
+
+
 def test_dictionary():
     survey = ECH("tests")
     survey.load(2019, weights="pesoano")
