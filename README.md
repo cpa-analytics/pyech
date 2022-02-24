@@ -45,6 +45,8 @@ from pyech import ECH
 survey = ECH()
 survey.load(year=2019, weights="pesoano")
 ```
+Optionally, `load` accepts `from_repo=True`, which downloads survey data from the PyECH Github repository (HDFS+JSON). Loading data this way is significantly faster.
+
 `ECH.load` also downloads the corresponding variable dictionary, which can be easily searched.
 ```python
 survey.search_dictionary("ingreso", ignore_case=True, regex=True)
@@ -55,4 +57,4 @@ survey.search_dictionary("ingreso", ignore_case=True, regex=True)
  ```python
  survey.summarize("ht11", by="dpto", aggfunc="mean", household_level=True)
  ```
- Which returns a pandas DataFrame with the mean of "ht11" grouped by `ECH.grouping` and `by` (both are optional). Cases are weighted by the column defined in `ECH.load`.
+ Which returns a pandas DataFrame with the mean of "ht11" grouped by `ECH.splitter` and `by` (both are optional). Cases are weighted by the column defined in `ECH.load`.
