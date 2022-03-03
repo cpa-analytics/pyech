@@ -195,6 +195,11 @@ class ECH(object):
             }
             if year == 2020:
                 self.data["pesoano"] = (self.data["pesomen"] / 12).round().astype(int)
+                self.metadata.column_names.append("pesoano")
+                self.metadata.column_labels.append("pesoano")
+                self.metadata.column_names_to_labels.update({"pesoano": "Peso año"})
+                self.metadata.column_labels_and_names.update({"pesoano": "Peso año (pesoano)"})
+                self.metadata.number_columns += 1
         self.get_dictionary(year=year)
         self.weights = weights
         self.splitter = splitter
